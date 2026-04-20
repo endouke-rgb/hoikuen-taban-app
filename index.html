@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>当番割り当てアプリ</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --blue:#1565C0;--blue-lt:#E3F2FD;--text:#1A237E;--text-sub:#5C6BC0;
+  --shadow:rgba(33,150,243,.12);
+}
+body{
+  font-family:'Hiragino Maru Gothic ProN','Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;
+  background:#EEF4FF;min-height:100vh;color:var(--text);
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* ── HEADER ── */
+.hdr{
+  position:sticky;top:0;z-index:100;
+  background:linear-gradient(135deg,#1565C0,#42A5F5);
+  padding:8px 12px 8px;box-shadow:0 4px 16px rgba(21,101,192,.3);
+}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:6px}
+.hdr-title{font-size:14px;font-weight:900;color:white;white-space:nowrap}
+.hdr-btns{display:flex;gap:5px;flex-shrink:0}
+.hbtn{
+  border:none;border-radius:10px;padding:6px 9px;font-size:11px;font-weight:700;
+  cursor:pointer;font-family:inherit;transition:all .18s;white-space:nowrap;
+}
+.hbtn-auto{background:linear-gradient(135deg,#FF6B9D,#FFA726);color:white}
+.hbtn-csv{background:rgba(255,255,255,.2);color:white;border:1.5px solid rgba(255,255,255,.45)}
+.hbtn-cfg{background:rgba(255,255,255,.18);color:white;width:32px;height:32px;padding:0;
+  display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:15px}
+.hbtn:hover{opacity:.85}
+.month-nav{display:flex;align-items:center;justify-content:center;gap:14px}
+.marrow{background:rgba(255,255,255,.22);border:none;border-radius:50%;
+  width:30px;height:30px;font-size:18px;color:white;cursor:pointer;
+  display:flex;align-items:center;justify-content:center}
+.mlabel{font-size:16px;font-weight:900;color:white;min-width:110px;text-align:center}
+
+/* ── TABLE WRAP ── */
+.twrap{overflow:auto;height:calc(100vh - 90px);-webkit-overflow-scrolling:touch}
+
+/* ── TABLE ── */
+table{border-collapse:collapse;background:white}
+th,td{border:1px solid #DDE;font-size:11px;font-weight:600;white-space:nowrap;text-align:center;vertical-align:middle}
+
+/* sticky name col */
+.cn{
+  position:sticky;left:0;z-index:20;background:white;
+  width:82px;min-width:82px;max-width:82px;
+  text-align:left;padding:3px 6px;border-right:2px solid #B0BEC5;
+}
+th.cn{background:linear-gradient(135deg,#1E88E5,#7986CB);color:white;z-index:30}
+
+/* sticky total col */
+.ct{
+  position:sticky;right:0;z-index:20;background:#FFF8E1;
+  width:34px;min-width:34px;max-width:34px;
+  border-left:2px solid #FFE082;font-size:11px;font-weight:900;color:#E65100;
+}
+th.ct{background:linear-gradient(135deg,#F57F17,#FFB300);color:white;z-index:30}
+
+/* date header */
+thead th.cd{
+  position:sticky;top:0;z-index:15;background:#F0F7FF;
+  width:44px;min-width:44px;max-width:44px;padding:3px 1px;
+}
+thead th.cd.sat{background:#FFF8E1}
+thead th.cd.today{background:#E8F5E9}
+.dnum{font-size:12px;font-weight:900;display:block}
+.ddow{font-size:9px;font-weight:700;display:block;margin-top:1px}
+.ddow.sun{color:#EF5350}.ddow.sat{color:#1E88E5}
+
+/* principal row */
+.pr-row td{background:#FFF3E0}
+.pr-row td.cn{font-size:10px;font-weight:900;color:#E65100;background:#FFF3E0}
+
+/* class group header row */
+.cg-row td{background:#E8EAF6;height:18px;padding:0}
+.cg-row td.cn{font-size:9px;font-weight:900;color:var(--text-sub);padding:1px 6px;background:#E8EAF6}
+
+/* maternity */
+tr.mat td{background:#FFF0F5;opacity:.55}
+tr.mat td.cn::after{content:'産休';font-size:8px;color:#E91E63;
+  background:#FCE4EC;border-radius:4px;padding:1px 3px;margin-left:3px}
+
+/* cells */
+td.ce{cursor:pointer;padding:2px}
+td.ce:hover{background:#E3F2FD}
+td.crest{background:#ECEFF1;font-size:10px;font-weight:700;color:#78909C;cursor:pointer}
+td.ctrip{background:#FFF3E0;font-size:10px;font-weight:700;color:#E65100;cursor:pointer}
+td.cmat{background:#FFF0F5;cursor:default}
+td.csat-off{background:#FAFAFA;color:#BDBDBD;font-size:9px;cursor:pointer}
+td.csat-off:hover{background:#FFF9E6}
+td.cprin{cursor:pointer}
+
+/* duty badges */
+.badge{display:inline-block;border-radius:6px;padding:2px 5px;font-size:10px;font-weight:900;line-height:1.4}
+.ba1{background:#FFCCBC;color:#BF360C}
+.ba5{background:#FFE0B2;color:#E65100}
+.be{background:#FFF9C4;color:#F57F17}
+.bf{background:#DCEDC8;color:#33691E}
+.bg{background:#B2DFDB;color:#004D40}
+.bln{background:#BBDEFB;color:#0D47A1}
+.bly{background:#E1BEE7;color:#4A148C}
+
+/* ── OVERLAY / SHEET ── */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,40,.42);z-index:200;
+  align-items:flex-end;justify-content:center;backdrop-filter:blur(3px)}
+.ov.open{display:flex;animation:bgIn .2s}
+@keyframes bgIn{from{opacity:0}to{opacity:1}}
+.sheet{background:white;border-radius:24px 24px 0 0;width:100%;max-width:480px;
+  max-height:90vh;overflow-y:auto;padding-bottom:24px;
+  animation:shUp .3s cubic-bezier(.22,1,.36,1)}
+@keyframes shUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.shdl{width:38px;height:5px;background:#E0E0E0;border-radius:100px;margin:11px auto}
+.shhd{padding:4px 18px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #F5F5F5}
+.shtitle{font-size:15px;font-weight:900;color:var(--text)}
+.shsub{font-size:11px;color:var(--text-sub);margin-top:2px}
+.shclose{width:32px;height:32px;border-radius:50%;border:none;background:#F5F5F5;
+  font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#90A4AE}
+.shbody{padding:14px 18px 0}
+
+/* shift picker */
+.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:12px}
+.sbtn{border:2px solid #EEE;border-radius:11px;padding:8px 2px;background:white;
+  cursor:pointer;font-family:inherit;transition:all .18s;
+  display:flex;flex-direction:column;align-items:center;gap:2px}
+.sbtn:hover{border-color:var(--blue);background:#EBF4FF}
+.sbtn.sel{border-color:var(--blue);background:#E3F2FD}
+.sbtn .sc{font-size:12px;font-weight:900}
+.sbtn .st{font-size:8px;color:#90A4AE;line-height:1.3;text-align:center}
+.sbtn.dis{opacity:.3;cursor:not-allowed}
+
+/* status buttons */
+.strow{display:flex;gap:7px;margin-bottom:12px}
+.stbtn{flex:1;border:2px solid #EEE;border-radius:11px;padding:9px 4px;
+  background:white;cursor:pointer;font-family:inherit;font-size:12px;font-weight:700;transition:all .18s}
+.stbtn:hover{border-color:#90A4AE}
+.stbtn.srest{border-color:#78909C;background:#ECEFF1;color:#546E7A}
+.stbtn.strip{border-color:#FF8F00;background:#FFF3E0;color:#E65100}
+
+/* buttons */
+.btn{display:block;width:100%;padding:12px;border:none;border-radius:13px;
+  font-size:14px;font-weight:900;cursor:pointer;transition:all .2s;font-family:inherit}
+.btn+.btn{margin-top:7px}
+.btn-blue{background:linear-gradient(135deg,#1565C0,#42A5F5);color:white;box-shadow:0 4px 16px rgba(33,150,243,.28)}
+.btn-gray{background:#F5F5F5;color:#78909C}
+.btn-red{background:linear-gradient(135deg,#B71C1C,#EF5350);color:white}
+
+/* settings */
+.set-sec{margin-bottom:18px}
+.set-title{font-size:12px;font-weight:900;color:var(--text-sub);margin-bottom:8px;
+  padding-bottom:5px;border-bottom:2px solid #EEE}
+.sr{display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:1px solid #F5F5F5}
+.scls{font-size:9px;font-weight:700;padding:2px 5px;border-radius:5px;
+  background:#E3F2FD;color:#1565C0;white-space:nowrap;min-width:32px;text-align:center;flex-shrink:0}
+.sni{flex:1;border:1.5px solid #DDEEFF;border-radius:8px;
+  padding:5px 9px;font-size:13px;font-family:inherit;color:var(--text);outline:none}
+.sni:focus{border-color:var(--blue)}
+.mtog{width:38px;height:22px;border-radius:100px;border:none;cursor:pointer;
+  position:relative;transition:background .2s;flex-shrink:0}
+.mtog::after{content:'';position:absolute;top:2px;left:2px;
+  width:18px;height:18px;border-radius:50%;background:white;transition:left .2s}
+.mtog.on{background:#E91E63}.mtog.on::after{left:18px}
+.mtog.off{background:#B0BEC5}
+
+/* saturday modal */
+.sat-list{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.sat-row{display:flex;align-items:center;gap:9px;padding:7px 11px;
+  border:2px solid #EEE;border-radius:11px;cursor:pointer;transition:all .18s}
+.sat-row.ck{border-color:var(--blue);background:#E3F2FD}
+.sat-chk{width:20px;height:20px;border-radius:6px;border:2px solid #B0BEC5;
+  display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.sat-row.ck .sat-chk{background:var(--blue);border-color:var(--blue);color:white}
+
+/* toast */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:#323232;color:white;border-radius:12px;padding:10px 20px;
+  font-size:13px;font-weight:700;z-index:500;opacity:0;transition:all .3s;
+  pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-top">
+    <div class="hdr-title">📋 当番割り当て</div>
+    <div class="hdr-btns">
+      <button class="hbtn hbtn-auto" onclick="autoAssign()">🪄 自動作成</button>
+      <button class="hbtn hbtn-csv"  onclick="exportCSV()">📥 CSV</button>
+      <button class="hbtn hbtn-cfg"  onclick="openSettings()">⚙️</button>
+    </div>
+  </div>
+  <div class="month-nav">
+    <button class="marrow" onclick="changeMonth(-1)">‹</button>
+    <div class="mlabel" id="mlabel"></div>
+    <button class="marrow" onclick="changeMonth(1)">›</button>
+  </div>
+</div>
+
+<div class="twrap" id="twrap"></div>
+
+<!-- CELL EDIT MODAL -->
+<div class="ov" id="ov-cell" onclick="ovClick(event,'ov-cell')">
+  <div class="sheet">
+    <div class="shdl"></div>
+    <div class="shhd">
+      <div><div class="shtitle" id="cell-title"></div><div class="shsub" id="cell-sub"></div></div>
+      <button class="shclose" onclick="closeOv('ov-cell')">✕</button>
+    </div>
+    <div class="shbody">
+      <div class="sgrid" id="shift-grid"></div>
+      <div class="strow">
+        <button class="stbtn" id="btn-rest" onclick="setCellStatus('rest')">😴 休み</button>
+        <button class="stbtn" id="btn-trip" onclick="setCellStatus('trip')">🚌 出張</button>
+        <button class="stbtn" onclick="setCellStatus('clear')">🗑️ クリア</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SATURDAY MODAL -->
+<div class="ov" id="ov-sat" onclick="ovClick(event,'ov-sat')">
+  <div class="sheet">
+    <div class="shdl"></div>
+    <div class="shhd">
+      <div><div class="shtitle" id="sat-title"></div><div class="shsub">出勤する職員にチェックを入れてください</div></div>
+      <button class="shclose" onclick="closeOv('ov-sat')">✕</button>
+    </div>
+    <div class="shbody">
+      <div class="sat-list" id="sat-list"></div>
+      <button class="btn btn-blue" onclick="saveSatAttendance()">保存する</button>
+      <button class="btn btn-gray" onclick="closeOv('ov-sat')" style="margin-top:7px">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="ov" id="ov-cfg" onclick="ovClick(event,'ov-cfg')">
+  <div class="sheet">
+    <div class="shdl"></div>
+    <div class="shhd">
+      <div><div class="shtitle">⚙️ 設定</div></div>
+      <button class="shclose" onclick="closeOv('ov-cfg')">✕</button>
+    </div>
+    <div class="shbody">
+      <div class="set-sec">
+        <div class="set-title">職員名・産休フラグ（産休=当番対象外）</div>
+        <div id="staff-settings"></div>
+      </div>
+      <button class="btn btn-blue" onclick="saveSettings()">保存する</button>
+      <button class="btn btn-gray" onclick="closeOv('ov-cfg')" style="margin-top:7px">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════════════════════
+   CONSTANTS
+═══════════════════════════════ */
+const SHIFTS = ['A1','A5','E','F','G','L乳','L幼'];
+const SHIFT_TIME = {'A1':'7:15〜16:00','A5':'7:25〜16:10','E':'8:25〜17:10',
+  'F':'8:30〜17:15','G':'8:45〜17:30','L乳':'10:00〜18:45','L幼':'10:00〜18:45'};
+const BADGE_CLS = {'A1':'ba1','A5':'ba5','E':'be','F':'bf','G':'bg','L乳':'bln','L幼':'bly'};
+const EARLY = new Set(['A1','A5','E']);
+const LATE  = new Set(['L乳','L幼','G']);
+const DOW_JP = ['日','月','火','水','木','金','土'];
+
+const DEFAULT_STAFF = [
+  {id:'fukuen',name:'副園長',cls:'管理',type:'admin'},
+  {id:'free',  name:'フリー',cls:'フリー',type:'free'},
+  {id:'n0_1',name:'0歳①',cls:'0歳',type:'nyuji'},
+  {id:'n0_2',name:'0歳②',cls:'0歳',type:'nyuji'},
+  {id:'n0_3',name:'0歳③',cls:'0歳',type:'nyuji'},
+  {id:'n0_4',name:'0歳④',cls:'0歳',type:'nyuji'},
+  {id:'n0_5',name:'0歳⑤',cls:'0歳',type:'nyuji',maternity:true},
+  {id:'n1_1',name:'1歳①',cls:'1歳',type:'nyuji'},
+  {id:'n1_2',name:'1歳②',cls:'1歳',type:'nyuji'},
+  {id:'n1_3',name:'1歳③',cls:'1歳',type:'nyuji'},
+  {id:'n2_1',name:'2歳①',cls:'2歳',type:'nyuji'},
+  {id:'n2_2',name:'2歳②',cls:'2歳',type:'nyuji'},
+  {id:'n2_3',name:'2歳③',cls:'2歳',type:'nyuji'},
+  {id:'n3_1',name:'3歳①',cls:'3歳',type:'yoji'},
+  {id:'n3_2',name:'3歳②',cls:'3歳',type:'yoji'},
+  {id:'n4_1',name:'4歳①',cls:'4歳',type:'yoji'},
+  {id:'n4_2',name:'4歳②',cls:'4歳',type:'yoji'},
+  {id:'n5_1',name:'5歳①',cls:'5歳',type:'yoji'},
+  {id:'n5_2',name:'5歳②',cls:'5歳',type:'yoji'},
+];
+
+/* ═══════════════════════════════
+   STATE
+═══════════════════════════════ */
+let year, month; // current display month
+let appData; // {staff:[], months:{}}
+
+function loadData() {
+  try { appData = JSON.parse(localStorage.getItem('tban_data') || 'null'); } catch(e){ appData=null; }
+  if (!appData) appData = {staff: DEFAULT_STAFF.map(s=>({...s})), months:{}};
+  // ensure all default staff exist
+  DEFAULT_STAFF.forEach(ds => {
+    if (!appData.staff.find(s=>s.id===ds.id))
+      appData.staff.push({...ds});
+  });
+}
+function saveData() { localStorage.setItem('tban_data', JSON.stringify(appData)); }
+
+function getStaff(id) { return appData.staff.find(s=>s.id===id); }
+function activeStaff() { return appData.staff.filter(s=>!s.maternity); }
+
+function getMonthKey(y,m) { return `${y}-${String(m+1).padStart(2,'0')}`; }
+function getMD(y,m) {
+  const k = getMonthKey(y,m);
+  if (!appData.months[k]) appData.months[k]={assignments:{},absences:{},principal:{},saturdayAttendance:{}};
+  return appData.months[k];
+}
+
+/* ═══════════════════════════════
+   DATE HELPERS
+═══════════════════════════════ */
+function toDateStr(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function fromDateStr(s) { return new Date(s+'T00:00:00'); }
+
+function getMonthDays(y, m) {
+  const days = [];
+  const d = new Date(y, m, 1);
+  while (d.getMonth() === m) {
+    const dow = d.getDay();
+    if (dow !== 0) days.push(toDateStr(d)); // exclude Sunday
+    d.setDate(d.getDate()+1);
+  }
+  return days;
+}
+
+function getPrevWorkday(dateStr) {
+  const d = fromDateStr(dateStr);
+  d.setDate(d.getDate()-1);
+  while (d.getDay() === 0) d.setDate(d.getDate()-1); // skip Sunday
+  return toDateStr(d);
+}
+
+function todayStr() { return toDateStr(new Date()); }
+
+/* ═══════════════════════════════
+   RENDER TABLE
+═══════════════════════════════ */
+function render() {
+  document.getElementById('mlabel').textContent = `${year}年${month+1}月`;
+  const days = getMonthDays(year, month);
+  const md = getMD(year, month);
+  const today = todayStr();
+
+  const classes = [...new Set(appData.staff.map(s=>s.cls))];
+
+  let html = '<table><thead><tr>';
+  html += `<th class="cn cd" style="top:0;z-index:30">職員名</th>`;
+  days.forEach(ds => {
+    const d = fromDateStr(ds); const dow = d.getDay();
+    const isSat = dow===6;
+    const isTod = ds===today;
+    const cls = isSat?'sat':'';
+    const todCls = isTod?' today':'';
+    const ddow = isSat?'sat':'';
+    html += `<th class="cd ${cls}${todCls}" data-date="${ds}" onclick="openSatModal('${ds}')" style="${isSat?'cursor:pointer':'cursor:default'}">` +
+      `<span class="dnum">${d.getDate()}</span>` +
+      `<span class="ddow ${ddow}">${DOW_JP[dow]}</span></th>`;
+  });
+  html += `<th class="ct">合計</th></tr></thead><tbody>`;
+
+  // 園長 row
+  html += `<tr class="pr-row"><td class="cn">👑 園長</td>`;
+  days.forEach(ds => {
+    const marked = md.principal[ds];
+    html += `<td class="cprin" onclick="togglePrincipal('${ds}')" title="クリックで切り替え">` +
+      (marked ? '●' : '') + `</td>`;
+  });
+  html += `<td class="ct"></td></tr>`;
+
+  // Staff rows grouped by class
+  let prevCls = null;
+  appData.staff.forEach(s => {
+    if (s.cls !== prevCls) {
+      // Class group header
+      html += `<tr class="cg-row"><td class="cn">${s.cls}</td>`;
+      days.forEach(() => html += '<td></td>');
+      html += `<td class="ct"></td></tr>`;
+      prevCls = s.cls;
+    }
+
+    const isMat = !!s.maternity;
+    html += `<tr class="${isMat?'mat':''}"><td class="cn">${s.name}</td>`;
+    let count = 0;
+
+    days.forEach(ds => {
+      if (isMat) { html += `<td class="cmat"></td>`; return; }
+      const d = fromDateStr(ds); const isSat = d.getDay()===6;
+      const absence = md.absences[ds]?.[s.id];
+      const assignment = md.assignments[ds];
+      const shift = assignment ? Object.entries(assignment).find(([,id])=>id===s.id)?.[0] : null;
+      const satAtt = md.saturdayAttendance[ds] || [];
+
+      if (absence === 'rest') {
+        html += `<td class="crest ce" onclick="openCell('${ds}','${s.id}')">休</td>`;
+      } else if (absence === 'trip') {
+        html += `<td class="ctrip ce" onclick="openCell('${ds}','${s.id}')">出</td>`;
+      } else if (isSat && !satAtt.includes(s.id)) {
+        html += `<td class="csat-off" onclick="openSatModal('${ds}')" title="土曜出勤設定">－</td>`;
+      } else if (shift) {
+        count++;
+        html += `<td class="ce" onclick="openCell('${ds}','${s.id}')">` +
+          `<span class="badge ${BADGE_CLS[shift]}">${shift}</span></td>`;
+      } else {
+        html += `<td class="ce" onclick="openCell('${ds}','${s.id}')"></td>`;
+      }
+    });
+
+    html += `<td class="ct">${count||''}</td></tr>`;
+  });
+
+  html += '</tbody></table>';
+  document.getElementById('twrap').innerHTML = html;
+}
+
+/* ═══════════════════════════════
+   CELL EDIT MODAL
+═══════════════════════════════ */
+let editDate = '', editStaff = '';
+
+function openCell(ds, sid) {
+  const s = getStaff(sid);
+  if (!s || s.maternity) return;
+  editDate = ds; editStaff = sid;
+  const d = fromDateStr(ds);
+  const isSat = d.getDay() === 6;
+  const md = getMD(year, month);
+  const satAtt = md.saturdayAttendance[ds] || [];
+  if (isSat && !satAtt.includes(sid)) return;
+
+  const absence = md.absences[ds]?.[sid];
+  const assignment = md.assignments[ds] || {};
+  const currentShift = Object.entries(assignment).find(([,id])=>id===sid)?.[0];
+
+  document.getElementById('cell-title').textContent =
+    `${d.getMonth()+1}月${d.getDate()}日（${DOW_JP[d.getDay()]}） ${s.name}`;
+  document.getElementById('cell-sub').textContent =
+    currentShift ? `現在: ${currentShift}` : absence ? `現在: ${absence==='rest'?'休み':'出張'}` : '未割り当て';
+
+  // Build shift grid
+  let sgHtml = '';
+  SHIFTS.forEach(sh => {
+    const takenBy = assignment[sh];
+    const takenBySomeone = takenBy && takenBy !== sid;
+    const notEligible = !isEligible(s, sh);
+    const classConflict = noClassConflict(s, sh, assignment) === false;
+    const dis = takenBySomeone || notEligible || classConflict;
+    const sel = currentShift === sh ? ' sel' : '';
+    const takenName = takenBySomeone ? getStaff(takenBy)?.name : '';
+    const note = takenBySomeone ? takenName : (notEligible ? '対象外' : (classConflict?'クラス重複':''));
+    sgHtml += `<button class="sbtn${sel}${dis?' dis':''}" onclick="${dis?'':''}" ` +
+      `${dis?'disabled':''} data-sh="${sh}" onclick="pickShift('${sh}')">` +
+      `<span class="sc badge ${BADGE_CLS[sh]}">${sh}</span>` +
+      `<span class="st">${SHIFT_TIME[sh].replace('〜','～')}</span>` +
+      (note?`<span class="st" style="color:#EF5350">${note}</span>`:'') +
+      `</button>`;
+  });
+  document.getElementById('shift-grid').innerHTML = sgHtml;
+  // Fix onclick (can't use onclick attr with disabled workaround)
+  document.querySelectorAll('#shift-grid .sbtn:not(.dis)').forEach(btn => {
+    btn.onclick = () => pickShift(btn.dataset.sh);
+  });
+
+  const restSel = absence==='rest';
+  const tripSel = absence==='trip';
+  document.getElementById('btn-rest').className = 'stbtn'+(restSel?' srest':'');
+  document.getElementById('btn-trip').className = 'stbtn'+(tripSel?' strip':'');
+
+  document.getElementById('ov-cell').classList.add('open');
+}
+
+function pickShift(sh) {
+  const md = getMD(year, month);
+  if (!md.assignments[editDate]) md.assignments[editDate] = {};
+  // Remove this staff from any current shift this day
+  Object.keys(md.assignments[editDate]).forEach(k => {
+    if (md.assignments[editDate][k] === editStaff) delete md.assignments[editDate][k];
+  });
+  // Remove whoever currently has this shift
+  delete md.assignments[editDate][sh];
+  // Assign
+  md.assignments[editDate][sh] = editStaff;
+  // Clear absence
+  if (md.absences[editDate]) delete md.absences[editDate][editStaff];
+  saveData(); closeOv('ov-cell'); render();
+}
+
+function setCellStatus(status) {
+  const md = getMD(year, month);
+  if (status === 'clear') {
+    if (md.absences[editDate]) delete md.absences[editDate][editStaff];
+    if (md.assignments[editDate]) {
+      Object.keys(md.assignments[editDate]).forEach(k => {
+        if (md.assignments[editDate][k] === editStaff) delete md.assignments[editDate][k];
+      });
+    }
+  } else {
+    if (!md.absences[editDate]) md.absences[editDate] = {};
+    md.absences[editDate][editStaff] = status;
+    // Remove any duty assignment
+    if (md.assignments[editDate]) {
+      Object.keys(md.assignments[editDate]).forEach(k => {
+        if (md.assignments[editDate][k] === editStaff) delete md.assignments[editDate][k];
+      });
+    }
+  }
+  saveData(); closeOv('ov-cell'); render();
+}
+
+/* ═══════════════════════════════
+   PRINCIPAL TOGGLE
+═══════════════════════════════ */
+function togglePrincipal(ds) {
+  const md = getMD(year, month);
+  if (md.principal[ds]) delete md.principal[ds];
+  else md.principal[ds] = true;
+  saveData(); render();
+}
+
+/* ═══════════════════════════════
+   SATURDAY MODAL
+═══════════════════════════════ */
+let satEditDate = '';
+let satTempChecked = new Set();
+
+function openSatModal(ds) {
+  const d = fromDateStr(ds);
+  if (d.getDay() !== 6) return;
+  satEditDate = ds;
+  const md = getMD(year, month);
+  const current = md.saturdayAttendance[ds] || [];
+  satTempChecked = new Set(current);
+
+  document.getElementById('sat-title').textContent =
+    `土曜出勤 ${d.getMonth()+1}月${d.getDate()}日`;
+
+  const active = activeStaff();
+  let html = '';
+  active.forEach(s => {
+    const ck = satTempChecked.has(s.id) ? ' ck' : '';
+    html += `<div class="sat-row${ck}" data-id="${s.id}" onclick="toggleSatStaff('${s.id}')">` +
+      `<div class="sat-chk">${satTempChecked.has(s.id)?'✓':''}</div>` +
+      `<span style="font-size:13px;font-weight:700">${s.name}</span>` +
+      `<span style="font-size:10px;color:#90A4AE;margin-left:auto">${s.cls}</span>` +
+      `</div>`;
+  });
+  document.getElementById('sat-list').innerHTML = html;
+  document.getElementById('ov-sat').classList.add('open');
+}
+
+function toggleSatStaff(id) {
+  if (satTempChecked.has(id)) satTempChecked.delete(id);
+  else satTempChecked.add(id);
+  // re-render list rows
+  document.querySelectorAll('#sat-list .sat-row').forEach(row => {
+    const rid = row.dataset.id;
+    const ck = satTempChecked.has(rid);
+    row.className = 'sat-row' + (ck?' ck':'');
+    row.querySelector('.sat-chk').textContent = ck ? '✓' : '';
+  });
+}
+
+function saveSatAttendance() {
+  const md = getMD(year, month);
+  md.saturdayAttendance[satEditDate] = [...satTempChecked];
+  // Remove duties for non-attending staff on this Saturday
+  if (md.assignments[satEditDate]) {
+    Object.keys(md.assignments[satEditDate]).forEach(sh => {
+      const sid = md.assignments[satEditDate][sh];
+      if (!satTempChecked.has(sid)) delete md.assignments[satEditDate][sh];
+    });
+  }
+  saveData(); closeOv('ov-sat'); render();
+}
+
+/* ═══════════════════════════════
+   SETTINGS
+═══════════════════════════════ */
+function openSettings() {
+  let html = '';
+  appData.staff.forEach(s => {
+    const isMat = !!s.maternity;
+    html += `<div class="sr">` +
+      `<span class="scls">${s.cls}</span>` +
+      `<input class="sni" id="sni-${s.id}" value="${s.name}" placeholder="${s.name}">` +
+      `<button class="mtog ${isMat?'on':'off'}" id="mt-${s.id}" onclick="toggleMat('${s.id}')" title="産休">` +
+      `</button></div>`;
+  });
+  document.getElementById('staff-settings').innerHTML = html;
+  document.getElementById('ov-cfg').classList.add('open');
+}
+
+function toggleMat(id) {
+  const btn = document.getElementById('mt-'+id);
+  const isOn = btn.classList.contains('on');
+  btn.classList.toggle('on', !isOn);
+  btn.classList.toggle('off', isOn);
+}
+
+function saveSettings() {
+  appData.staff.forEach(s => {
+    const inp = document.getElementById('sni-'+s.id);
+    if (inp) s.name = inp.value.trim() || s.name;
+    const btn = document.getElementById('mt-'+s.id);
+    if (btn) s.maternity = btn.classList.contains('on');
+  });
+  saveData(); closeOv('ov-cfg'); render(); showToast('設定を保存しました');
+}
+
+/* ═══════════════════════════════
+   AUTO ASSIGN
+═══════════════════════════════ */
+function isEligible(s, shift) {
+  if (shift === 'L乳') return s.type==='nyuji'||s.type==='free'||s.type==='admin';
+  if (shift === 'L幼') return s.type==='yoji'||s.type==='free'||s.type==='admin';
+  return true;
+}
+
+function noClassConflict(s, shift, dayAssign) {
+  if (s.cls === '管理' || s.cls === 'フリー') return true;
+  const isE = EARLY.has(shift), isL = LATE.has(shift);
+  if (!isE && !isL) return true;
+  for (const [sh, sid] of Object.entries(dayAssign)) {
+    const s2 = getStaff(sid);
+    if (!s2 || s2.cls !== s.cls) continue;
+    if (isE && EARLY.has(sh)) return false;
+    if (isL && LATE.has(sh)) return false;
+  }
+  return true;
+}
+
+function getAvailable(ds, md, isSat) {
+  let pool = activeStaff();
+  if (isSat) {
+    const att = md.saturdayAttendance[ds] || [];
+    return pool.filter(s => att.includes(s.id));
+  }
+  const abs = md.absences[ds] || {};
+  pool = pool.filter(s => !abs[s.id]);
+  if (md.principal[ds]) pool = pool.filter(s => s.id !== 'fukuen');
+  return pool;
+}
+
+function satShifts(n) {
+  return ['A1','A5','E','F','G','L乳','L幼'].slice(0, n);
+}
+
+function calcScore(s, shift, ds, dow, counts, lastDuty, dowHist, dayAssign) {
+  let score = 100;
+  score -= (counts[s.id] || 0) * 8;
+  const prev = getPrevWorkday(ds);
+  if (lastDuty[s.id] === prev) score -= 40;
+  score -= (dowHist[s.id]?.[dow] || 0) * 15;
+  // Class type balance in today's assignments
+  const sameTypeInDay = Object.values(dayAssign)
+    .filter(id => { const s2=getStaff(id); return s2&&s2.type===s.type&&s2.type!=='admin'&&s2.type!=='free'; }).length;
+  if (sameTypeInDay >= 4) score -= 18;
+  score += Math.random() * 3;
+  return score;
+}
+
+function autoAssign() {
+  if (!confirm('当番を自動作成します。既存の当番データは上書きされます。よろしいですか？')) return;
+  const md = getMD(year, month);
+  md.assignments = {};
+
+  const days = getMonthDays(year, month);
+  const counts = {}; const lastDuty = {}; const dowHist = {};
+  activeStaff().forEach(s => { counts[s.id]=0; dowHist[s.id]={}; });
+
+  const warnings = [];
+
+  // Shift assignment order: harder (fewer eligible) first
+  const shiftOrder = ['L幼','L乳','G','A1','A5','E','F'];
+
+  for (const ds of days) {
+    const d = fromDateStr(ds); const dow = d.getDay();
+    const isSat = dow === 6;
+    const available = getAvailable(ds, md, isSat);
+    if (!available.length) continue;
+
+    const toFill = isSat ? satShifts(available.length) : shiftOrder;
+    const dayAssign = {};
+    const usedToday = new Set();
+
+    for (const shift of toFill) {
+      if (!SHIFTS.includes(shift)) continue;
+      const eligible = available.filter(s =>
+        !usedToday.has(s.id) &&
+        isEligible(s, shift) &&
+        noClassConflict(s, shift, dayAssign)
+      );
+      if (!eligible.length) {
+        if (!isSat) warnings.push(`${d.getMonth()+1}/${d.getDate()} ${shift}`);
+        continue;
+      }
+      const scored = eligible.map(s => ({s, score: calcScore(s,shift,ds,dow,counts,lastDuty,dowHist,dayAssign)}));
+      scored.sort((a,b) => b.score - a.score);
+      const chosen = scored[0].s;
+      dayAssign[shift] = chosen.id;
+      usedToday.add(chosen.id);
+      counts[chosen.id] = (counts[chosen.id]||0) + 1;
+      lastDuty[chosen.id] = ds;
+      dowHist[chosen.id][dow] = (dowHist[chosen.id][dow]||0) + 1;
+    }
+    if (Object.keys(dayAssign).length) md.assignments[ds] = dayAssign;
+  }
+
+  saveData(); render();
+  if (warnings.length) {
+    alert('⚠️ 以下の当番を割り当てできませんでした（出勤可能な職員不足）:\n' + warnings.join('\n'));
+  } else {
+    showToast('自動作成完了！ ✨');
+  }
+}
+
+/* ═══════════════════════════════
+   CSV EXPORT
+═══════════════════════════════ */
+function exportCSV() {
+  const md = getMD(year, month);
+  const days = getMonthDays(year, month);
+  const staff = appData.staff;
+
+  const headers = ['職員名', ...days.map(ds => {
+    const d = fromDateStr(ds);
+    return `${d.getMonth()+1}/${d.getDate()}(${DOW_JP[d.getDay()]})`;
+  }), '合計'];
+
+  const rows = [headers];
+
+  // Principal row
+  const prRow = ['園長', ...days.map(ds => md.principal[ds] ? '●' : ''), ''];
+  rows.push(prRow);
+
+  staff.forEach(s => {
+    let count = 0;
+    const cells = days.map(ds => {
+      if (s.maternity) return '産休';
+      const abs = md.absences[ds]?.[s.id];
+      if (abs === 'rest') return '休み';
+      if (abs === 'trip') return '出張';
+      const d = fromDateStr(ds);
+      if (d.getDay()===6 && !(md.saturdayAttendance[ds]||[]).includes(s.id)) return '－';
+      const asgn = md.assignments[ds] || {};
+      const shift = Object.entries(asgn).find(([,id])=>id===s.id)?.[0];
+      if (shift) { count++; return shift; }
+      return '';
+    });
+    rows.push([s.name, ...cells, count]);
+  });
+
+  const bom = '\uFEFF';
+  const csv = bom + rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `当番表_${year}年${month+1}月.csv`;
+  a.click();
+}
+
+/* ═══════════════════════════════
+   UI HELPERS
+═══════════════════════════════ */
+function changeMonth(d) {
+  month += d;
+  if (month < 0) { month = 11; year--; }
+  if (month > 11) { month = 0; year++; }
+  render();
+}
+
+function ovClick(e, id) { if (e.target.id === id) closeOv(id); }
+function closeOv(id) { document.getElementById(id).classList.remove('open'); }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+/* ═══════════════════════════════
+   INIT
+═══════════════════════════════ */
+loadData();
+const now = new Date();
+year = now.getFullYear(); month = now.getMonth();
+render();
+</script>
+</body>
+</html>
