@@ -8,7 +8,7 @@
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
   --blue:#1565C0;--text:#1A237E;--text-sub:#5C6BC0;
-  --r1:22px;--r2:20px;--r3:28px;
+  --r1:24px;--r2:20px;
   --cw-cls:54px;--cw-name:82px;--cw-code:22px;--cw-total:26px;
   --left1:0px;--left2:54px;--left3:136px;
 }
@@ -68,24 +68,19 @@ thead .ctot{background:linear-gradient(135deg,#F57F17,#FFB300);color:white;z-ind
 .hd{width:26px;min-width:26px;max-width:26px;padding:1px 0}
 .hr1 th{position:sticky;top:0;z-index:15}
 .hr2 th{position:sticky;top:var(--r1);z-index:15}
-.hr3 th{position:sticky;top:calc(var(--r1) + var(--r2));z-index:15}
 thead .cc,thead .cn,thead .cd{z-index:26}
-.hr1 .hd{height:var(--r1);font-size:12px;font-weight:900;background:#F0F7FF}
+.hr1 .hd{height:var(--r1);font-size:12px;font-weight:900;background:#F0F7FF;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.hr1 .hd:hover{filter:brightness(.95)}
 .hr2 .hd{height:var(--r2);font-size:10px;font-weight:700;background:#F0F7FF}
-.hr3 .hd{height:var(--r3);font-size:9px;background:#FAFBFF;cursor:pointer;vertical-align:top;padding-top:2px}
-.hr3 .hd:hover{background:#EEF4FF}
 .d-sat{background:#EEF4FF!important;color:#1565C0}
 .d-sun,.d-hol{background:#FFF0F0!important;color:#C62828;cursor:default!important}
 .d-tod{background:#E8F5E9!important}
 .hr1 .d-sat .dnum,.hr2 .d-sat{color:#1565C0!important}
 .hr1 .d-sun .dnum,.hr2 .d-sun,.hr1 .d-hol .dnum,.hr2 .d-hol{color:#C62828!important}
-.dnum{font-size:12px;font-weight:900;display:block}
+.dnum{font-size:12px;font-weight:900;line-height:1}
 .ddow{font-size:9px;font-weight:700}
-.memo-wrap{display:flex;flex-direction:column;align-items:center;gap:1px}
-.memo-txt{display:block;writing-mode:vertical-rl;text-orientation:mixed;
-  font-size:8px;color:#5C6BC0;line-height:1.2;max-height:18px;overflow:hidden}
-.flag-early{font-size:7px;font-weight:900;color:#C62828;line-height:1}
-.flag-late{font-size:7px;font-weight:900;color:#1565C0;line-height:1}
+.dind{font-size:6px;font-weight:900;line-height:1;display:flex;gap:1px}
+.dind-e{color:#C62828}.dind-l{color:#1565C0}
 
 /* CLASS NAME CELL */
 .cls-cell{background:#E8EAF6;writing-mode:vertical-rl;text-orientation:mixed;
@@ -189,16 +184,11 @@ thead .cc,thead .cn,thead .cd{z-index:26}
 
 /* DAY SETTINGS */
 .day-flag-row{display:flex;gap:8px;margin-bottom:10px}
-.flag-btn{flex:1;border:2px solid #EEE;border-radius:12px;padding:10px 6px;
-  background:white;cursor:pointer;font-family:inherit;font-size:12px;font-weight:700;
-  transition:all .17s;text-align:center}
+.flag-btn{flex:1;border:2px solid #EEE;border-radius:12px;padding:12px 6px;
+  background:white;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;
+  transition:all .17s;text-align:center;color:#90A4AE}
 .flag-btn.on-early{border-color:#C62828;background:#FFEBEE;color:#C62828}
 .flag-btn.on-late{border-color:#1565C0;background:#E3F2FD;color:#1565C0}
-.flag-btn:not(.on-early):not(.on-late){color:#90A4AE}
-.day-memo-label{font-size:11px;font-weight:700;color:var(--text-sub);margin-bottom:5px}
-.day-memo-input{width:100%;border:1.5px solid #DDEEFF;border-radius:10px;
-  padding:8px 10px;font-size:13px;font-family:inherit;outline:none;margin-bottom:10px}
-.day-memo-input:focus{border-color:var(--blue)}
 
 /* SETTINGS TABS */
 .stab-row{display:flex;border-bottom:2px solid #EEE;margin-bottom:12px}
@@ -322,16 +312,15 @@ thead .cc,thead .cn,thead .cd{z-index:26}
       <button class="shclose" onclick="closeOv('ov-day')">✕</button>
     </div>
     <div class="shbody">
+      <div style="font-size:11px;color:var(--text-sub);margin-bottom:8px">この日に割り当てないシフト区分を選択（タップでON/OFF）</div>
       <div class="day-flag-row">
         <button class="flag-btn" id="flag-early" onclick="toggleDayFlag('early')">
-          早番× <div style="font-size:9px;color:inherit;opacity:.7">A1・A5・E を割り当てない</div>
+          早番×<div style="font-size:9px;margin-top:3px;opacity:.8">A1・A5・E</div>
         </button>
         <button class="flag-btn" id="flag-late" onclick="toggleDayFlag('late')">
-          遅番× <div style="font-size:9px;color:inherit;opacity:.7">G・L1・L2 を割り当てない</div>
+          遅番×<div style="font-size:9px;margin-top:3px;opacity:.8">G・L1・L2</div>
         </button>
       </div>
-      <div class="day-memo-label">メモ（行事・会議名など）</div>
-      <input class="day-memo-input" id="day-memo-input" placeholder="例：親子遠足">
       <button class="btn btn-blue" onclick="saveDaySettings()">保存する</button>
       <button class="btn btn-gray" onclick="closeOv('ov-day')" style="margin-top:6px">キャンセル</button>
     </div>
@@ -486,44 +475,33 @@ function renderTable(){
 
   // ── THEAD ──
   h+='<thead><tr class="hr1">';
-  h+='<th class="cc" rowspan="3">クラス</th><th class="cn" rowspan="3">職員名</th><th class="cd" rowspan="3">CD</th>';
+  h+='<th class="cc" rowspan="2">クラス</th><th class="cn" rowspan="2">職員名</th><th class="cd" rowspan="2">CD</th>';
   days.forEach(ds=>{
     const d=fromDate(ds);const dow=d.getDay();
     const sat=dow===6,sun=dow===0,hol=isHol(ds,md),tod=ds===today;
     const canDay=!sun&&!hol;
+    const flags=(md.dayFlags||{})[ds]||{};
     let cls='hd';
     if(sat)cls+=' d-sat';else if(sun||hol)cls+=' d-sun';
     if(tod)cls+=' d-tod';
-    h+=`<th class="${cls}"${canDay?` onclick="openDaySettings('${ds}')"`:''}><span class="dnum">${d.getDate()}</span></th>`;
+    let ind='';
+    if(flags.noEarly||flags.noLate){
+      ind='<span class="dind">';
+      if(flags.noEarly)ind+='<span class="dind-e">早×</span>';
+      if(flags.noLate) ind+='<span class="dind-l">遅×</span>';
+      ind+='</span>';
+    }
+    h+=`<th class="${cls}"${canDay?` onclick="openDaySettings('${ds}')"`:''}><span class="dnum">${d.getDate()}</span>${ind}</th>`;
   });
-  h+='<th class="ctot" rowspan="3">計</th></tr>';
+  h+='<th class="ctot" rowspan="2">計</th></tr>';
 
   h+='<tr class="hr2">';
   days.forEach(ds=>{
     const d=fromDate(ds);const dow=d.getDay();
     const sat=dow===6,sun=dow===0,hol=isHol(ds,md);
-    const canDay=!sun&&!hol;
     let cls='hd';
     if(sat)cls+=' d-sat';else if(sun||hol)cls+=' d-sun';
-    h+=`<th class="${cls}"${canDay?` onclick="openDaySettings('${ds}')"`:''}><span class="ddow">${DOW_JP[dow]}</span></th>`;
-  });
-  h+='</tr>';
-
-  h+='<tr class="hr3">';
-  days.forEach(ds=>{
-    const d=fromDate(ds);const dow=d.getDay();
-    const sat=dow===6,sun=dow===0,hol=isHol(ds,md);
-    const canEdit=!sun&&!hol;
-    const memo=(md.dayMemos||{})[ds]||'';
-    const flags=(md.dayFlags||{})[ds]||{};
-    let cls='hd';
-    if(sat)cls+=' d-sat';else if(sun||hol)cls+=' d-sun';
-    let inner='<div class="memo-wrap">';
-    if(memo) inner+=`<span class="memo-txt">${escH(memo)}</span>`;
-    if(flags.noEarly) inner+=`<span class="flag-early">早×</span>`;
-    if(flags.noLate)  inner+=`<span class="flag-late">遅×</span>`;
-    inner+='</div>';
-    h+=`<th class="${cls}"${canEdit?` onclick="openDaySettings('${ds}')"`:''}>${inner}</th>`;
+    h+=`<th class="${cls}"><span class="ddow">${DOW_JP[dow]}</span></th>`;
   });
   h+='</tr></thead><tbody>';
 
@@ -657,12 +635,10 @@ function openDaySettings(ds){
   daySettingsDate=ds;
   const md=getMD(curY,curM);
   const flags=(md.dayFlags||{})[ds]||{};
-  const memo=(md.dayMemos||{})[ds]||'';
   dayFlagEarly=!!flags.noEarly;
   dayFlagLate=!!flags.noLate;
   document.getElementById('day-title').textContent=
     `${d.getMonth()+1}月${d.getDate()}日（${DOW_JP[dow]}）`;
-  document.getElementById('day-memo-input').value=memo;
   updateDayFlagButtons();
   document.getElementById('ov-day').classList.add('open');
 }
@@ -683,10 +659,6 @@ function updateDayFlagButtons(){
 function saveDaySettings(){
   const md=getMD(curY,curM);
   if(!md.dayFlags)md.dayFlags={};
-  if(!md.dayMemos)md.dayMemos={};
-  const memo=document.getElementById('day-memo-input').value.trim();
-  if(memo) md.dayMemos[daySettingsDate]=memo;
-  else delete md.dayMemos[daySettingsDate];
   if(dayFlagEarly||dayFlagLate){
     md.dayFlags[daySettingsDate]={noEarly:dayFlagEarly,noLate:dayFlagLate};
   }else{
