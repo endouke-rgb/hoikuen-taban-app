@@ -10,7 +10,7 @@
   --blue:#1565C0;--text:#1A237E;--text-sub:#5C6BC0;
   --r1:22px;--r2:20px;--r3:28px;
   --cw-cls:54px;--cw-name:82px;--cw-code:22px;
-  --cw-total:26px;--cw-leg:84px;
+  --cw-total:26px;
   --left1:0px;--left2:54px;--left3:136px;
 }
 body{font-family:'Hiragino Maru Gothic ProN','Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;
@@ -26,6 +26,7 @@ body{font-family:'Hiragino Maru Gothic ProN','Hiragino Kaku Gothic ProN','Noto S
   cursor:pointer;font-family:inherit;transition:opacity .18s;white-space:nowrap}
 .hbtn-auto{background:linear-gradient(135deg,#FF6B9D,#FFA726);color:white}
 .hbtn-csv{background:rgba(255,255,255,.2);color:white;border:1.5px solid rgba(255,255,255,.4)}
+.hbtn-leg{background:rgba(255,255,255,.18);color:white;border:1.5px solid rgba(255,255,255,.3)}
 .hbtn-cfg{background:rgba(255,255,255,.18);color:white;width:30px;height:30px;padding:0;
   display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:14px}
 .hbtn:hover{opacity:.82}
@@ -60,17 +61,11 @@ thead .cc,thead .cn,thead .cd{z-index:25;background:linear-gradient(135deg,#1E88
   color:white;border-color:#5C9CE6}
 
 /* STICKY RIGHT COLS */
-.ctot{position:sticky;right:var(--cw-leg);z-index:10;
+.ctot{position:sticky;right:0;z-index:10;
   width:var(--cw-total);min-width:var(--cw-total);max-width:var(--cw-total);
   background:#FFF8E1;border-left:2px solid #FFE082;
   font-size:11px;font-weight:900;color:#E65100}
 thead .ctot{background:linear-gradient(135deg,#F57F17,#FFB300);color:white;z-index:25}
-
-.cleg{position:sticky;right:0;z-index:10;
-  width:var(--cw-leg);min-width:var(--cw-leg);max-width:var(--cw-leg);
-  background:#F8F9FF;border-left:2px solid #C5CAE9;padding:6px 5px;
-  text-align:left;vertical-align:top}
-thead .cleg{z-index:25;background:linear-gradient(135deg,#303F9F,#5C6BC0);color:white;vertical-align:middle;text-align:center;font-size:10px}
 
 /* DATE HEADER CELLS */
 .hd{width:26px;min-width:26px;max-width:26px;padding:1px 0}
@@ -120,6 +115,10 @@ thead .cc,thead .cn,thead .cd{z-index:26}
 .c-empty{cursor:pointer}
 .c-empty:hover{background:#E3F2FD}
 .c-sun,.c-hol{background:#FFF0F0;cursor:default}
+/* 土曜：出勤 */
+.c-sat-on{background:#DBEEFF;color:#1565C0;font-size:10px;font-weight:900;cursor:pointer}
+.c-sat-on:hover{filter:brightness(.93)}
+/* 土曜：欠勤 */
 .c-sat-off{background:#FAFAFA;color:#BDBDBD;font-size:9px;cursor:pointer}
 .c-sat-off:hover{background:#EEF4FF}
 .c-mat{background:#FFF0F5}
@@ -140,10 +139,16 @@ thead .cc,thead .cn,thead .cd{z-index:26}
 .c-trip{background:#FFF3E0;color:#E65100;font-size:10px;font-weight:900;cursor:pointer}
 .c-nen {background:#F3E5F5;color:#6A1B9A;font-size:10px;font-weight:900;cursor:pointer}
 
-/* LEGEND */
-.leg-item{display:flex;align-items:center;gap:3px;margin-bottom:4px;white-space:nowrap}
-.leg-badge{display:inline-block;border-radius:3px;padding:1px 4px;font-size:9px;font-weight:900;line-height:1.4}
-.leg-time{font-size:8px;color:#546E7A;line-height:1.3}
+/* LEGEND CARD */
+.leg-card{background:white;border-radius:16px;padding:16px 20px;min-width:200px;
+  box-shadow:0 8px 32px rgba(21,101,192,.18);
+  animation:scIn .22s cubic-bezier(.22,1,.36,1)}
+@keyframes scIn{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.leg-card-title{font-size:13px;font-weight:900;color:var(--text);margin-bottom:10px;text-align:center}
+.leg-item{display:flex;align-items:center;gap:6px;margin-bottom:6px;white-space:nowrap}
+.leg-badge{display:inline-block;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:900;
+  line-height:1.4;min-width:28px;text-align:center}
+.leg-time{font-size:10px;color:#546E7A}
 
 /* OVERLAY / SHEET */
 .ov{display:none;position:fixed;inset:0;background:rgba(0,0,40,.42);z-index:200;
@@ -232,15 +237,6 @@ thead .cc,thead .cn,thead .cd{z-index:26}
 .hol-day.marked{background:#FFEBEE;border-color:#EF5350;color:#C62828}
 .hol-day.empty{background:#FAFAFA;color:#BDBDBD;cursor:default;border:none}
 
-/* SAT MODAL */
-.sat-list{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
-.sat-row{display:flex;align-items:center;gap:8px;padding:6px 10px;
-  border:2px solid #EEE;border-radius:10px;cursor:pointer;transition:all .17s}
-.sat-row.ck{border-color:var(--blue);background:#E3F2FD}
-.sat-chk{width:20px;height:20px;border-radius:5px;border:2px solid #B0BEC5;
-  display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
-.sat-row.ck .sat-chk{background:var(--blue);border-color:var(--blue);color:white}
-
 /* BUTTONS */
 .btn{display:block;width:100%;padding:11px;border:none;border-radius:12px;
   font-size:13px;font-weight:900;cursor:pointer;transition:all .2s;font-family:inherit}
@@ -266,6 +262,7 @@ thead .cc,thead .cn,thead .cd{z-index:26}
     <div class="hdr-btns">
       <button class="hbtn hbtn-auto" onclick="autoAssign()">🪄 自動作成</button>
       <button class="hbtn hbtn-csv"  onclick="exportCSV()">📥 CSV</button>
+      <button class="hbtn hbtn-leg"  onclick="openLegend()">📋 凡例</button>
       <button class="hbtn hbtn-cfg"  onclick="openSettings()">⚙️</button>
     </div>
   </div>
@@ -277,6 +274,20 @@ thead .cc,thead .cn,thead .cd{z-index:26}
 </div>
 
 <div class="twrap" id="twrap"></div>
+
+<!-- LEGEND MODAL -->
+<div class="ov ov-center" id="ov-leg" onclick="ovBg(event,'ov-leg')">
+  <div class="leg-card">
+    <div class="leg-card-title">シフト一覧</div>
+    <div class="leg-item"><span class="leg-badge bg-a1">A1</span><span class="leg-time">7:15〜16:00</span></div>
+    <div class="leg-item"><span class="leg-badge bg-a5">A5</span><span class="leg-time">7:25〜16:10</span></div>
+    <div class="leg-item"><span class="leg-badge bg-e">E</span><span class="leg-time">8:25〜17:10</span></div>
+    <div class="leg-item"><span class="leg-badge bg-f">F</span><span class="leg-time">8:30〜17:15</span></div>
+    <div class="leg-item"><span class="leg-badge bg-g">G</span><span class="leg-time">8:45〜17:30</span></div>
+    <div class="leg-item"><span class="leg-badge bg-ln">L乳</span><span class="leg-time">10:00〜18:45</span></div>
+    <div class="leg-item"><span class="leg-badge bg-ly">L幼</span><span class="leg-time">10:00〜18:45</span></div>
+  </div>
+</div>
 
 <!-- CELL EDIT MODAL -->
 <div class="ov" id="ov-cell" onclick="ovBg(event,'ov-cell')">
@@ -294,22 +305,6 @@ thead .cc,thead .cn,thead .cd{z-index:26}
         <button class="stbtn" id="btn-nen"  onclick="setCellStatus('nenkyuu')">📅 年休</button>
         <button class="stbtn" onclick="setCellStatus('clear')">🗑️ クリア</button>
       </div>
-    </div>
-  </div>
-</div>
-
-<!-- SATURDAY MODAL -->
-<div class="ov" id="ov-sat" onclick="ovBg(event,'ov-sat')">
-  <div class="sheet">
-    <div class="shdl"></div>
-    <div class="shhd">
-      <div><div class="shtitle" id="sat-title"></div><div class="shsub">出勤する職員にチェック</div></div>
-      <button class="shclose" onclick="closeOv('ov-sat')">✕</button>
-    </div>
-    <div class="shbody">
-      <div class="sat-list" id="sat-list"></div>
-      <button class="btn btn-blue" onclick="saveSatAtt()">保存する</button>
-      <button class="btn btn-gray" onclick="closeOv('ov-sat')" style="margin-top:6px">キャンセル</button>
     </div>
   </div>
 </div>
@@ -345,7 +340,6 @@ const SHIFTS = ['A1','A5','E','F','G','L乳','L幼'];
 const SHIFT_TIME = {A1:'7:15〜16:00',A5:'7:25〜16:10',E:'8:25〜17:10',
   F:'8:30〜17:15',G:'8:45〜17:30','L乳':'10:00〜18:45','L幼':'10:00〜18:45'};
 const SHIFT_BG = {A1:'bg-a1',A5:'bg-a5',E:'bg-e',F:'bg-f',G:'bg-g','L乳':'bg-ln','L幼':'bg-ly'};
-const SHIFT_LEG_CLS = {A1:'bg-a1',A5:'bg-a5',E:'bg-e',F:'bg-f',G:'bg-g','L乳':'bg-ln','L幼':'bg-ly'};
 const EARLY = new Set(['A1','A5','E']);
 const LATE  = new Set(['L乳','L幼','G']);
 const DOW_JP = ['日','月','火','水','木','金','土'];
@@ -353,7 +347,7 @@ const CLASS_ORDER = ['管理','フリー','0歳','1歳','2歳','3歳','4歳','5�
 const CLASS_TYPE  = {'管理':'admin','フリー':'free','0歳':'nyuji','1歳':'nyuji','2歳':'nyuji','3歳':'yoji','4歳':'yoji','5歳':'yoji'};
 const CLASS_PFX   = {'管理':'admin','フリー':'fr','0歳':'n0','1歳':'n1','2歳':'n2','3歳':'n3','4歳':'n4','5歳':'n5'};
 const CIRCLE = ['','①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'];
-const REIWA_BASE = 2018; // 令和元年 = 2019
+const REIWA_BASE = 2018;
 
 const DEFAULT_STAFF = [
   {id:'fukuen',name:'副園長',cls:'管理',type:'admin',code:''},
@@ -383,7 +377,6 @@ const DEFAULT_STAFF = [
 let appData;
 let curY, curM;
 let editDate='', editSid='';
-let satDate=''; let satChecked=new Set();
 let settingsTab=0;
 
 /* ══════════════════════════════════════
@@ -416,13 +409,6 @@ function isHol(ds,md){return(md.holidays||[]).includes(ds);}
 function reiwa(y){const r=y-REIWA_BASE;return r===1?'令和元年':`令和${r}年`;}
 
 /* ══════════════════════════════════════
-   LEGEND HTML
-══════════════════════════════════════ */
-function buildLegend(){
-  return SHIFTS.map(sh=>`<div class="leg-item"><span class="leg-badge ${SHIFT_LEG_CLS[sh]}">${sh}</span><span class="leg-time">${SHIFT_TIME[sh]}</span></div>`).join('');
-}
-
-/* ══════════════════════════════════════
    RENDER
 ══════════════════════════════════════ */
 function render(){
@@ -435,18 +421,14 @@ function renderTable(){
   const md=getMD(curY,curM);
   const today=todayStr();
 
-  // Group staff by class
   const groups={};
   CLASS_ORDER.forEach(c=>{groups[c]=appData.staff.filter(s=>s.cls===c);});
 
-  // Total tbody rows: 1 (principal) + all staff
-  const totalBodyRows = 1 + appData.staff.length;
-
   let h='<table>';
   // colgroup
-  h+=`<colgroup><col style="width:${54}px"><col style="width:82px"><col style="width:22px">`;
+  h+=`<colgroup><col style="width:54px"><col style="width:82px"><col style="width:22px">`;
   days.forEach(()=>h+='<col style="width:26px">');
-  h+=`<col style="width:26px"><col style="width:84px"></colgroup>`;
+  h+=`<col style="width:26px"></colgroup>`;
 
   // ── THEAD ──
   h+='<thead>';
@@ -462,11 +444,9 @@ function renderTable(){
     let cls='hd';
     if(sat)cls+=' d-sat';else if(sun||hol)cls+=' d-sun';
     if(tod)cls+=' d-tod';
-    const onclick=(sat&&!sun&&!hol)?` onclick="openSatModal('${ds}')" title="土曜出勤設定"`:' ';
-    h+=`<th class="${cls}"${onclick}><span class="dnum">${d.getDate()}</span></th>`;
+    h+=`<th class="${cls}"><span class="dnum">${d.getDate()}</span></th>`;
   });
   h+=`<th class="ctot" rowspan="3">計</th>`;
-  h+=`<th class="cleg" rowspan="3">シフト</th>`;
   h+='</tr>';
 
   // Row 2: day of week
@@ -508,8 +488,6 @@ function renderTable(){
     h+=`<td class="c-prin" onclick="togglePrin('${ds}')">${marked?'<span class="prin-mark">●</span>':''}</td>`;
   });
   h+=`<td class="ctot"></td>`;
-  // Legend rowspan covers all tbody rows
-  h+=`<td class="cleg" rowspan="${totalBodyRows}"><div>${buildLegend()}</div></td>`;
   h+='</tr>';
 
   // ── STAFF ROWS ──
@@ -522,7 +500,6 @@ function renderTable(){
       const mat=!!s.maternity;
       h+=`<tr class="${mat?'mat-row':''}">`;
 
-      // Class cell (rowspan for first in class)
       if(idx===0){
         h+=`<td class="cc cls-cell" rowspan="${staff.length}">${escH(cname)}</td>`;
       }
@@ -538,9 +515,16 @@ function renderTable(){
         if(mat){h+=`<td class="c-mat"></td>`;return;}
         if(sun||hol){h+=`<td class="c-sun"></td>`;return;}
 
-        const satAtt=(md.saturdayAttendance||{})[ds]||[];
-        if(sat&&!satAtt.includes(s.id)){
-          h+=`<td class="c-sat-off" onclick="openSatModal('${ds}')">−</td>`;return;
+        // 土曜：出勤/欠勤トグルのみ
+        if(sat){
+          const satAtt=(md.saturdayAttendance||{})[ds]||[];
+          const attending=satAtt.includes(s.id);
+          if(attending){
+            h+=`<td class="c-sat-on" onclick="toggleSatCell('${ds}','${s.id}')">出</td>`;
+          }else{
+            h+=`<td class="c-sat-off" onclick="toggleSatCell('${ds}','${s.id}')">－</td>`;
+          }
+          return;
         }
 
         const abs=(md.absences||{})[ds]?.[s.id];
@@ -572,14 +556,13 @@ function renderTable(){
 function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 /* ══════════════════════════════════════
-   CELL EDIT
+   CELL EDIT（平日のみ）
 ══════════════════════════════════════ */
 function openCell(ds,sid){
   const s=getS(sid);if(!s||s.maternity)return;
   const d=fromDate(ds);const dow=d.getDay();
+  if(dow===6)return; // 土曜はtoggleSatCellで処理
   const md=getMD(curY,curM);
-  const sat=dow===6;
-  if(sat&&!((md.saturdayAttendance||{})[ds]||[]).includes(sid))return;
   editDate=ds;editSid=sid;
 
   const abs=(md.absences||{})[ds]?.[sid];
@@ -617,7 +600,6 @@ function openCell(ds,sid){
 function pickShift(sh){
   const md=getMD(curY,curM);
   if(!md.assignments[editDate])md.assignments[editDate]={};
-  // Remove this person from any current shift today
   Object.keys(md.assignments[editDate]).forEach(k=>{
     if(md.assignments[editDate][k]===editSid)delete md.assignments[editDate][k];
   });
@@ -667,50 +649,26 @@ function editMemo(ds){
 }
 
 /* ══════════════════════════════════════
-   SATURDAY
+   SATURDAY（セルタップでトグル）
 ══════════════════════════════════════ */
-function openSatModal(ds){
-  const d=fromDate(ds);if(d.getDay()!==6)return;
-  satDate=ds;
+function toggleSatCell(ds, sid){
+  const s=getS(sid);if(!s||s.maternity)return;
   const md=getMD(curY,curM);
-  satChecked=new Set((md.saturdayAttendance||{})[ds]||[]);
-  document.getElementById('sat-title').textContent=
-    `土曜出勤 ${d.getMonth()+1}月${d.getDate()}日`;
-  renderSatList();
-  document.getElementById('ov-sat').classList.add('open');
-}
-
-function renderSatList(){
-  const active=activeStaff();
-  document.getElementById('sat-list').innerHTML=active.map(s=>{
-    const ck=satChecked.has(s.id);
-    return`<div class="sat-row${ck?' ck':''}" data-id="${s.id}" onclick="toggleSat('${s.id}')">
-      <div class="sat-chk">${ck?'✓':''}</div>
-      <span style="font-size:12px;font-weight:700">${escH(s.name)}</span>
-      <span style="font-size:9px;color:#90A4AE;margin-left:auto">${escH(clsName(s.cls))}</span>
-    </div>`;
-  }).join('');
-}
-
-function toggleSat(id){
-  if(satChecked.has(id))satChecked.delete(id);else satChecked.add(id);
-  renderSatList();
-}
-
-function saveSatAtt(){
-  const md=getMD(curY,curM);
-  md.saturdayAttendance[satDate]=[...satChecked];
-  // Remove duties for absent staff
-  if(md.assignments[satDate]){
-    Object.keys(md.assignments[satDate]).forEach(sh=>{
-      if(!satChecked.has(md.assignments[satDate][sh]))delete md.assignments[satDate][sh];
-    });
-  }
-  saveData();closeOv('ov-sat');renderTable();
+  if(!md.saturdayAttendance[ds])md.saturdayAttendance[ds]=[];
+  const arr=md.saturdayAttendance[ds];
+  const i=arr.indexOf(sid);
+  if(i>-1)arr.splice(i,1);
+  else arr.push(sid);
+  saveData();renderTable();
 }
 
 /* ══════════════════════════════════════
-   AUTO ASSIGN
+   LEGEND
+══════════════════════════════════════ */
+function openLegend(){document.getElementById('ov-leg').classList.add('open');}
+
+/* ══════════════════════════════════════
+   AUTO ASSIGN（土曜はスキップ）
 ══════════════════════════════════════ */
 function isEligible(s,shift){
   if(shift==='L乳')return s.type==='nyuji'||s.type==='free'||s.type==='admin';
@@ -728,12 +686,8 @@ function noClassConflict(s,shift,dayAsgn){
   }
   return true;
 }
-function getAvail(ds,md,isSat){
+function getAvailWeekday(ds,md){
   let pool=activeStaff();
-  if(isSat){
-    const att=(md.saturdayAttendance||{})[ds]||[];
-    return pool.filter(s=>att.includes(s.id));
-  }
   const abs=(md.absences||{})[ds]||{};
   pool=pool.filter(s=>!abs[s.id]);
   if((md.principal||{})[ds])pool=pool.filter(s=>s.id!=='fukuen');
@@ -745,7 +699,6 @@ function getPrevWD(ds){
   while(d.getDay()===0)d.setDate(d.getDate()-1);
   return toDateStr(d);
 }
-function satShifts(n){return['A1','A5','E','F','G','L乳','L幼'].slice(0,Math.min(n,7));}
 
 function calcScore(s,shift,ds,dow,counts,lastDuty,dowHist,dayAsgn){
   let sc=100;
@@ -770,17 +723,15 @@ function autoAssign(){
 
   for(const ds of days){
     const d=fromDate(ds);const dow=d.getDay();
-    const isSat=dow===6,isSun=dow===0;
-    if(isSun||isHol(ds,md))continue;
-    const avail=getAvail(ds,md,isSat);
+    // 土曜・日曜・祝日はスキップ
+    if(dow===6||dow===0||isHol(ds,md))continue;
+    const avail=getAvailWeekday(ds,md);
     if(!avail.length)continue;
-    const toFill=isSat?satShifts(avail.length):shiftOrder;
     const dayAsgn={};const used=new Set();
 
-    for(const shift of toFill){
-      if(!SHIFTS.includes(shift))continue;
+    for(const shift of shiftOrder){
       const elig=avail.filter(s=>!used.has(s.id)&&isEligible(s,shift)&&noClassConflict(s,shift,dayAsgn));
-      if(!elig.length){if(!isSat)warns.push(`${d.getMonth()+1}/${d.getDate()} ${shift}`);continue;}
+      if(!elig.length){warns.push(`${d.getMonth()+1}/${d.getDate()} ${shift}`);continue;}
       const scored=elig.map(s=>({s,score:calcScore(s,shift,ds,dow,counts,lastDuty,dowHist,dayAsgn)}));
       scored.sort((a,b)=>b.score-a.score);
       const chosen=scored[0].s;
@@ -814,7 +765,7 @@ function switchSettingsTab(n){
     document.getElementById(`stab${i}`).classList.toggle('active',i===n);
   });
   const saveBtn=document.getElementById('cfg-save-btn');
-  saveBtn.classList.toggle('hidden',n===2); // holiday tab saves immediately
+  saveBtn.classList.toggle('hidden',n===2);
 
   const el=document.getElementById('stab-content');
   if(n===0)el.innerHTML=buildClsTab();
@@ -856,11 +807,8 @@ function addStaff(cls){
   const type=CLASS_TYPE[cls]||'nyuji';
   appData.staff.push({id:newId,name:`${cls}${num}`,cls,type,code:''});
   saveData();
-  // Update count display
   const cnt=document.getElementById(`cnt-${cls}`);
   if(cnt)cnt.textContent=appData.staff.filter(s=>s.cls===cls).length;
-  // Update minus button
-  const rows=document.querySelectorAll('.cls-row');
   showToast(`${clsName(cls)}に${cls}${num}を追加しました`);
 }
 
@@ -870,7 +818,6 @@ function removeStaff(cls){
   const last=clsStaff[clsStaff.length-1];
   if(!confirm(`「${last.name}」を削除しますか？\nこの職員の当番データもすべて削除されます。`))return;
   appData.staff.splice(appData.staff.findIndex(s=>s.id===last.id),1);
-  // Remove data from all months
   Object.values(appData.months).forEach(md=>{
     Object.values(md.assignments||{}).forEach(da=>{
       Object.keys(da).forEach(sh=>{if(da[sh]===last.id)delete da[sh];});
@@ -915,7 +862,6 @@ function buildHolTab(){
   const hols=md.holidays||[];
   const days=getMonthDays(curY,curM);
   const firstDow=fromDate(days[0]).getDay();
-  const lastDay=days.length;
   let h=`<div style="margin-bottom:8px;font-size:12px;color:#546E7A">祝日（当番なし）をタップで設定</div>`;
   h+='<div class="hol-grid">';
   DOW_JP.forEach(d=>h+=`<div class="hol-dow">${d}</div>`);
@@ -940,7 +886,6 @@ function toggleHol(ds){
 }
 
 function saveSettings(){
-  // Save class names
   ['フリー','0歳','1歳','2歳','3歳','4歳','5歳'].forEach(cls=>{
     const inp=document.getElementById(`cni-${cls}`);
     if(inp){
@@ -949,7 +894,6 @@ function saveSettings(){
       else delete appData.classNames[cls];
     }
   });
-  // Save staff names/codes/maternity
   appData.staff.forEach(s=>{
     const ni=document.getElementById('sni-'+s.id);
     if(ni)s.name=ni.value.trim()||s.name;
@@ -972,7 +916,6 @@ function exportCSV(){
     '合計'];
   const rows=[hdr];
 
-  // Principal row
   rows.push(['','園長','',
     ...days.map(ds=>{
       const d=fromDate(ds);const dow=d.getDay();
@@ -980,15 +923,16 @@ function exportCSV(){
       return(md.principal||{})[ds]?'●':'';
     }),'']);
 
-  // Staff rows
   appData.staff.forEach(s=>{
     let count=0;
     const cells=days.map(ds=>{
       const d=fromDate(ds);const dow=d.getDay();
       if(s.maternity)return'産休';
       if(dow===0||isHol(ds,md))return'';
-      const sat=dow===6;
-      if(sat&&!((md.saturdayAttendance||{})[ds]||[]).includes(s.id))return'－';
+      if(dow===6){
+        const satAtt=(md.saturdayAttendance||{})[ds]||[];
+        return satAtt.includes(s.id)?'出':'－';
+      }
       const abs=(md.absences||{})[ds]?.[s.id];
       if(abs)return abs==='rest'?'休み':abs==='nenkyuu'?'年休':'出張';
       const asgn=(md.assignments||{})[ds]||{};
