@@ -284,8 +284,8 @@ thead .cc,thead .cn,thead .cd{z-index:26}
     <div class="leg-item"><span class="leg-badge bg-e">E</span><span class="leg-time">8:25〜17:10</span></div>
     <div class="leg-item"><span class="leg-badge bg-f">F</span><span class="leg-time">8:30〜17:15</span></div>
     <div class="leg-item"><span class="leg-badge bg-g">G</span><span class="leg-time">8:45〜17:30</span></div>
-    <div class="leg-item"><span class="leg-badge bg-ln">L乳</span><span class="leg-time">10:00〜18:45</span></div>
-    <div class="leg-item"><span class="leg-badge bg-ly">L幼</span><span class="leg-time">10:00〜18:45</span></div>
+    <div class="leg-item"><span class="leg-badge bg-ln">L1</span><span class="leg-time">10:00〜18:45</span></div>
+    <div class="leg-item"><span class="leg-badge bg-ly">L2</span><span class="leg-time">10:00〜18:45</span></div>
   </div>
 </div>
 
@@ -336,12 +336,12 @@ thead .cc,thead .cn,thead .cd{z-index:26}
 /* ══════════════════════════════════════
    CONSTANTS
 ══════════════════════════════════════ */
-const SHIFTS = ['A1','A5','E','F','G','L乳','L幼'];
+const SHIFTS = ['A1','A5','E','F','G','L1','L2'];
 const SHIFT_TIME = {A1:'7:15〜16:00',A5:'7:25〜16:10',E:'8:25〜17:10',
-  F:'8:30〜17:15',G:'8:45〜17:30','L乳':'10:00〜18:45','L幼':'10:00〜18:45'};
-const SHIFT_BG = {A1:'bg-a1',A5:'bg-a5',E:'bg-e',F:'bg-f',G:'bg-g','L乳':'bg-ln','L幼':'bg-ly'};
+  F:'8:30〜17:15',G:'8:45〜17:30',L1:'10:00〜18:45',L2:'10:00〜18:45'};
+const SHIFT_BG = {A1:'bg-a1',A5:'bg-a5',E:'bg-e',F:'bg-f',G:'bg-g',L1:'bg-ln',L2:'bg-ly'};
 const EARLY = new Set(['A1','A5','E']);
-const LATE  = new Set(['L乳','L幼','G']);
+const LATE  = new Set(['L1','L2','G']);
 const DOW_JP = ['日','月','火','水','木','金','土'];
 const CLASS_ORDER = ['管理','フリー','0歳','1歳','2歳','3歳','4歳','5歳'];
 const CLASS_TYPE  = {'管理':'admin','フリー':'free','0歳':'nyuji','1歳':'nyuji','2歳':'nyuji','3歳':'yoji','4歳':'yoji','5歳':'yoji'};
@@ -671,9 +671,7 @@ function openLegend(){document.getElementById('ov-leg').classList.add('open');}
    AUTO ASSIGN（土曜はスキップ）
 ══════════════════════════════════════ */
 function isEligible(s,shift){
-  if(shift==='L乳')return s.type==='nyuji'||s.type==='free'||s.type==='admin';
-  if(shift==='L幼')return s.type==='yoji'||s.type==='free'||s.type==='admin';
-  return true;
+  return true; // 全シフト全員対応
 }
 function noClassConflict(s,shift,dayAsgn){
   if(s.cls==='管理'||s.cls==='フリー')return true;
@@ -700,14 +698,22 @@ function getPrevWD(ds){
   return toDateStr(d);
 }
 
-function calcScore(s,shift,ds,dow,counts,lastDuty,dowHist,dayAsgn){
-  let sc=100;
-  sc-=(counts[s.id]||0)*8;
-  if(lastDuty[s.id]===getPrevWD(ds))sc-=40;
-  sc-=(dowHist[s.id]?.[dow]||0)*15;
-  const sameType=Object.values(dayAsgn).filter(id=>{const s2=getS(id);return s2&&s2.type===s.type&&s2.type!=='admin'&&s2.type!=='free';}).length;
-  if(sameType>=4)sc-=18;
-  sc+=Math.random()*3;
+// shiftCounts[staffId][shiftType] = 回数
+function calcScore(s,shift,ds,dow,counts,shiftCounts,lastDuty,dowHist,eligPool){
+  let sc=0;
+  // 【最高優先】そのシフト種別の担当回数が少ない人を優先
+  const myShiftCnt=(shiftCounts[s.id]||{})[shift]||0;
+  const avgShiftCnt=eligPool.reduce((sum,p)=>sum+((shiftCounts[p.id]||{})[shift]||0),0)/eligPool.length;
+  sc+=(avgShiftCnt-myShiftCnt)*60;
+  // 【高】総当番回数が少ない人を優先
+  const avgTot=eligPool.reduce((sum,p)=>sum+(counts[p.id]||0),0)/eligPool.length;
+  sc+=(avgTot-(counts[s.id]||0))*20;
+  // 【高】連日ペナルティ
+  if(lastDuty[s.id]===getPrevWD(ds))sc-=50;
+  // 【中】曜日偏りペナルティ
+  sc-=(dowHist[s.id]?.[dow]||0)*12;
+  // 微小乱数（完全同点を避ける）
+  sc+=Math.random()*2;
   return sc;
 }
 
@@ -716,27 +722,44 @@ function autoAssign(){
   const md=getMD(curY,curM);
   md.assignments={};
   const days=getMonthDays(curY,curM);
-  const counts={};const lastDuty={};const dowHist={};
-  activeStaff().forEach(s=>{counts[s.id]=0;dowHist[s.id]={};});
+  const counts={};       // staffId → 総当番回数
+  const shiftCounts={};  // staffId → {shiftType: 回数}
+  const lastDuty={};
+  const dowHist={};
+  activeStaff().forEach(s=>{
+    counts[s.id]=0;
+    shiftCounts[s.id]={};
+    SHIFTS.forEach(sh=>{shiftCounts[s.id][sh]=0;});
+    dowHist[s.id]={};
+  });
   const warns=[];
-  const shiftOrder=['L幼','L乳','G','A1','A5','E','F'];
+  // シフト種別ごとの均等化のため、各日の割り当て順をランダム化
+  const shiftOrder=[...SHIFTS];
 
   for(const ds of days){
     const d=fromDate(ds);const dow=d.getDay();
-    // 土曜・日曜・祝日はスキップ
     if(dow===6||dow===0||isHol(ds,md))continue;
     const avail=getAvailWeekday(ds,md);
     if(!avail.length)continue;
     const dayAsgn={};const used=new Set();
 
-    for(const shift of shiftOrder){
-      const elig=avail.filter(s=>!used.has(s.id)&&isEligible(s,shift)&&noClassConflict(s,shift,dayAsgn));
+    // シフトごとに担当回数の少ない人から割り当てる
+    // 割り当て順：各シフトの平均担当回数が多いシフトから先に（不足しがちなシフトを先処理）
+    const orderedShifts=[...SHIFTS].sort((a,b)=>{
+      const avgA=avail.reduce((s,p)=>s+(shiftCounts[p.id]?.[a]||0),0)/avail.length;
+      const avgB=avail.reduce((s,p)=>s+(shiftCounts[p.id]?.[b]||0),0)/avail.length;
+      return avgA-avgB; // 平均が少ないシフトを先に割り当て
+    });
+
+    for(const shift of orderedShifts){
+      const elig=avail.filter(s=>!used.has(s.id)&&noClassConflict(s,shift,dayAsgn));
       if(!elig.length){warns.push(`${d.getMonth()+1}/${d.getDate()} ${shift}`);continue;}
-      const scored=elig.map(s=>({s,score:calcScore(s,shift,ds,dow,counts,lastDuty,dowHist,dayAsgn)}));
+      const scored=elig.map(s=>({s,score:calcScore(s,shift,ds,dow,counts,shiftCounts,lastDuty,dowHist,elig)}));
       scored.sort((a,b)=>b.score-a.score);
       const chosen=scored[0].s;
       dayAsgn[shift]=chosen.id;used.add(chosen.id);
       counts[chosen.id]=(counts[chosen.id]||0)+1;
+      shiftCounts[chosen.id][shift]=(shiftCounts[chosen.id][shift]||0)+1;
       lastDuty[chosen.id]=ds;
       dowHist[chosen.id][dow]=(dowHist[chosen.id][dow]||0)+1;
     }
