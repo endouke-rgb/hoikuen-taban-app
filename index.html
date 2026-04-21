@@ -490,10 +490,11 @@ function renderTable(){
   days.forEach(ds=>{
     const d=fromDate(ds);const dow=d.getDay();
     const sat=dow===6,sun=dow===0,hol=isHol(ds,md),tod=ds===today;
+    const canDay=!sun&&!hol;
     let cls='hd';
     if(sat)cls+=' d-sat';else if(sun||hol)cls+=' d-sun';
     if(tod)cls+=' d-tod';
-    h+=`<th class="${cls}"><span class="dnum">${d.getDate()}</span></th>`;
+    h+=`<th class="${cls}"${canDay?` onclick="openDaySettings('${ds}')"`:''}><span class="dnum">${d.getDate()}</span></th>`;
   });
   h+='<th class="ctot" rowspan="3">計</th></tr>';
 
@@ -501,9 +502,10 @@ function renderTable(){
   days.forEach(ds=>{
     const d=fromDate(ds);const dow=d.getDay();
     const sat=dow===6,sun=dow===0,hol=isHol(ds,md);
+    const canDay=!sun&&!hol;
     let cls='hd';
     if(sat)cls+=' d-sat';else if(sun||hol)cls+=' d-sun';
-    h+=`<th class="${cls}"><span class="ddow">${DOW_JP[dow]}</span></th>`;
+    h+=`<th class="${cls}"${canDay?` onclick="openDaySettings('${ds}')"`:''}><span class="ddow">${DOW_JP[dow]}</span></th>`;
   });
   h+='</tr>';
 
