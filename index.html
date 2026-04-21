@@ -120,6 +120,7 @@ thead .cc,thead .cn,thead .cd{z-index:26}
 .c-nen {background:#F3E5F5;color:#6A1B9A;font-size:10px;font-weight:900;cursor:pointer}
 .c-ne  {background:#FFF3F3;color:#C62828;font-size:10px;font-weight:900;cursor:pointer}
 .c-nl  {background:#EEF4FF;color:#1565C0;font-size:10px;font-weight:900;cursor:pointer}
+.c-principal{background:#FFF3E0;color:#E65100;font-size:13px;font-weight:900;cursor:pointer}
 
 /* LEGEND CARD */
 .leg-card{background:white;border-radius:16px;padding:16px 20px;min-width:200px;
@@ -449,9 +450,10 @@ function activeStaff(){return appData.staff.filter(s=>!s.maternity);}
 function clsName(cls){return appData.classNames[cls]||cls;}
 function getMD(y,m){
   const k=`${y}-${String(m+1).padStart(2,'0')}`;
-  if(!appData.months[k])appData.months[k]={assignments:{},absences:{},saturdayAttendance:{},dayMemos:{},dayFlags:{},holidays:[]};
+  if(!appData.months[k])appData.months[k]={assignments:{},absences:{},saturdayAttendance:{},dayMemos:{},dayFlags:{},holidays:[],principal:{}};
   const md=appData.months[k];
   if(!md.dayFlags)md.dayFlags={};
+  if(!md.principal)md.principal={};
   return md;
 }
 function toDateStr(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
@@ -550,24 +552,28 @@ function renderTable(){
             :`<td class="c-sat-off" onclick="toggleSatCell('${ds}','${s.id}')">－</td>`;
           return;
         }
+        if(s.id==='encho'){
+          const isPrincipal=(md.principal||{})[ds];
+          h+=isPrincipal
+            ?`<td class="c-principal c-edit" onclick="togglePrincipal('${ds}')">●</td>`
+            :`<td class="c-empty c-edit" onclick="togglePrincipal('${ds}')"></td>`;
+          return;
+        }
         const abs=(md.absences||{})[ds]?.[s.id];
-        const editable=s.id!=='encho';
-        const editAttr=editable?` onclick="openCell('${ds}','${s.id}')"` :'';
-        const editCls=editable?' c-edit':'';
-        if(abs==='noEarly'){h+=`<td class="c-ne${editCls}"${editAttr}>早×</td>`;return;}
-        if(abs==='noLate') {h+=`<td class="c-nl${editCls}"${editAttr}>遅×</td>`;return;}
+        if(abs==='noEarly'){h+=`<td class="c-ne c-edit" onclick="openCell('${ds}','${s.id}')">早×</td>`;return;}
+        if(abs==='noLate') {h+=`<td class="c-nl c-edit" onclick="openCell('${ds}','${s.id}')">遅×</td>`;return;}
         if(abs){
           const lbl=abs==='rest'?'休':abs==='nenkyuu'?'年':'出';
           const bc=abs==='rest'?'c-rest':abs==='nenkyuu'?'c-nen':'c-trip';
-          h+=`<td class="${bc}${editCls}"${editAttr}>${lbl}</td>`;return;
+          h+=`<td class="${bc} c-edit" onclick="openCell('${ds}','${s.id}')">${lbl}</td>`;return;
         }
         const asgn=(md.assignments||{})[ds]||{};
         const shift=Object.entries(asgn).find(([,id])=>id===s.id)?.[0];
         if(shift){
           count++;
-          h+=`<td class="${SHIFT_BG[shift]||''}${editCls}"${editAttr} style="font-size:10px;font-weight:900">${shift}</td>`;
+          h+=`<td class="${SHIFT_BG[shift]||''} c-edit" onclick="openCell('${ds}','${s.id}')" style="font-size:10px;font-weight:900">${shift}</td>`;
         }else{
-          h+=`<td class="c-empty${editCls}"${editAttr}></td>`;
+          h+=`<td class="c-empty c-edit" onclick="openCell('${ds}','${s.id}')"></td>`;
         }
       });
       h+=`<td class="ctot">${count||''}</td></tr>`;
@@ -593,10 +599,13 @@ function openCell(ds,sid){
   const abs=(md.absences||{})[ds]?.[sid];
   const asgn=(md.assignments||{})[ds]||{};
   const curShift=Object.entries(asgn).find(([,id])=>id===sid)?.[0];
+  const isPrincipalDay=(md.principal||{})[ds];
+  const h3Block=sid==='fukuen'&&isPrincipalDay;
 
   document.getElementById('cell-title').textContent=
     `${d.getMonth()+1}月${d.getDate()}日（${DOW_JP[dow]}） ${s.name}`;
   document.getElementById('cell-sub').textContent=
+    h3Block?'⚠️ 園長マーク日（H3ルール）':
     curShift?`現在: ${curShift}`:abs?`現在: ${abs==='rest'?'休み':abs==='nenkyuu'?'年休':abs==='noEarly'?'早番×':abs==='noLate'?'遅番×':'出張'}`:'未割り当て';
 
   let sg='';
@@ -605,8 +614,8 @@ function openCell(ds,sid){
     const takenBySomeone=takenId&&takenId!==sid;
     const clsConf=!noClassConflict(s,sh,asgn);
     const flagDis=(flags.noEarly&&EARLY.has(sh))||(flags.noLate&&LATE.has(sh));
-    const dis=takenBySomeone||clsConf||flagDis;
-    const note=takenBySomeone?escH(getS(takenId)?.name||''):clsConf?'クラス重複':flagDis?'当日×':'';
+    const dis=takenBySomeone||clsConf||flagDis||h3Block;
+    const note=takenBySomeone?escH(getS(takenId)?.name||''):clsConf?'クラス重複':flagDis?'当日×':h3Block?'H3':'';
     const sel=curShift===sh?' sel':'';
     sg+=`<button class="spbtn${sel}${dis?' dis':''}" ${dis?'disabled':''} onclick="pickShift('${sh}')">
       <span class="sc ${SHIFT_BG[sh]}">${sh}</span>
@@ -677,6 +686,13 @@ function saveDaySettings(){
   if(memo) md.dayMemos[daySettingsDate]=memo;
   else delete md.dayMemos[daySettingsDate];
   saveData();closeOv('ov-day');renderTable();
+}
+
+function togglePrincipal(ds){
+  const md=getMD(curY,curM);
+  if(md.principal[ds]) delete md.principal[ds];
+  else md.principal[ds]=true;
+  saveData();renderTable();
 }
 
 /* ══════════════════════════════════════
@@ -794,8 +810,10 @@ function noClassConflict(s,shift,dayAsgn){
 function getAvailWeekday(ds,md){
   let pool=activeStaff();
   const abs=(md.absences||{})[ds]||{};
+  const isPrincipalDay=(md.principal||{})[ds];
   return pool.filter(s=>{
     if(s.id==='encho')return false;
+    if(s.id==='fukuen'&&isPrincipalDay)return false;
     const a=abs[s.id];return !a||a==='noEarly'||a==='noLate';
   });
 }
@@ -922,8 +940,7 @@ function switchSettingsTab(n){
 
 function buildClsTab(){
   let h='<div style="margin-bottom:12px">';
-  // 管理を含む全クラスを編集可能に
-  ['管理','フリー','0歳','1歳','2歳','3歳','4歳','5歳'].forEach(cls=>{
+  ['フリー','0歳','1歳','2歳','3歳','4歳','5歳'].forEach(cls=>{
     const count=appData.staff.filter(s=>s.cls===cls).length;
     const dispName=cfgClassNames[cls]!==undefined?cfgClassNames[cls]:(appData.classNames[cls]||cls);
     h+=`<div class="cls-row">
@@ -1024,7 +1041,7 @@ function toggleHol(ds){
 }
 
 function saveSettings(){
-  ['管理','フリー','0歳','1歳','2歳','3歳','4歳','5歳'].forEach(cls=>{
+  ['フリー','0歳','1歳','2歳','3歳','4歳','5歳'].forEach(cls=>{
     const inp=document.getElementById(`cni-${cls}`);
     if(inp){
       const v=inp.value.trim();
@@ -1063,6 +1080,7 @@ function exportCSV(){
         const satAtt=(md.saturdayAttendance||{})[ds]||[];
         return satAtt.includes(s.id)?'出':'－';
       }
+      if(s.id==='encho')return (md.principal||{})[ds]?'●':'';
       const abs=(md.absences||{})[ds]?.[s.id];
       if(abs)return abs==='rest'?'休み':abs==='nenkyuu'?'年休':'出張';
       const asgn=(md.assignments||{})[ds]||{};
