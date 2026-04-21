@@ -326,14 +326,6 @@ thead .cc,thead .cn,thead .cd{z-index:26}
       <button class="shclose" onclick="closeOv('ov-day')">✕</button>
     </div>
     <div class="shbody">
-      <div class="day-flag-row">
-        <button class="flag-btn" id="flag-early" onclick="toggleDayFlag('early')">
-          早番× <div style="font-size:9px;color:inherit;opacity:.7">A1・A5・E を割り当てない</div>
-        </button>
-        <button class="flag-btn" id="flag-late" onclick="toggleDayFlag('late')">
-          遅番× <div style="font-size:9px;color:inherit;opacity:.7">G・L1・L2 を割り当てない</div>
-        </button>
-      </div>
       <div class="day-memo-label">メモ（行事・会議名など）</div>
       <input class="day-memo-input" id="day-memo-input" placeholder="例：親子遠足">
       <button class="btn btn-blue" onclick="saveDaySettings()">保存する</button>
@@ -438,7 +430,7 @@ const DEFAULT_STAFF = [
 let appData;
 let curY, curM;
 let editDate='', editSid='';
-let daySettingsDate='', dayFlagEarly=false, dayFlagLate=false;
+let daySettingsDate='';
 let settingsTab=0;
 let matrixFY;
 
@@ -528,8 +520,6 @@ function renderTable(){
     if(sat)cls+=' d-sat';else if(sun||hol)cls+=' d-sun';
     let inner='<div class="memo-wrap">';
     if(memo) inner+=`<span class="memo-txt">${escH(memo)}</span>`;
-    if(flags.noEarly) inner+=`<span class="flag-early">早×</span>`;
-    if(flags.noLate)  inner+=`<span class="flag-late">遅×</span>`;
     inner+='</div>';
     h+=`<th class="${cls}"${canEdit?` onclick="openDaySettings('${ds}')"`:''}>${inner}</th>`;
   });
@@ -561,20 +551,23 @@ function renderTable(){
           return;
         }
         const abs=(md.absences||{})[ds]?.[s.id];
-        if(abs==='noEarly'){h+=`<td class="c-ne c-edit" onclick="openCell('${ds}','${s.id}')">早×</td>`;return;}
-        if(abs==='noLate') {h+=`<td class="c-nl c-edit" onclick="openCell('${ds}','${s.id}')">遅×</td>`;return;}
+        const editable=s.id!=='encho';
+        const editAttr=editable?` onclick="openCell('${ds}','${s.id}')"` :'';
+        const editCls=editable?' c-edit':'';
+        if(abs==='noEarly'){h+=`<td class="c-ne${editCls}"${editAttr}>早×</td>`;return;}
+        if(abs==='noLate') {h+=`<td class="c-nl${editCls}"${editAttr}>遅×</td>`;return;}
         if(abs){
           const lbl=abs==='rest'?'休':abs==='nenkyuu'?'年':'出';
           const bc=abs==='rest'?'c-rest':abs==='nenkyuu'?'c-nen':'c-trip';
-          h+=`<td class="${bc} c-edit" onclick="openCell('${ds}','${s.id}')">${lbl}</td>`;return;
+          h+=`<td class="${bc}${editCls}"${editAttr}>${lbl}</td>`;return;
         }
         const asgn=(md.assignments||{})[ds]||{};
         const shift=Object.entries(asgn).find(([,id])=>id===s.id)?.[0];
         if(shift){
           count++;
-          h+=`<td class="${SHIFT_BG[shift]||''} c-edit" onclick="openCell('${ds}','${s.id}')" style="font-size:10px;font-weight:900">${shift}</td>`;
+          h+=`<td class="${SHIFT_BG[shift]||''}${editCls}"${editAttr} style="font-size:10px;font-weight:900">${shift}</td>`;
         }else{
-          h+=`<td class="c-empty c-edit" onclick="openCell('${ds}','${s.id}')"></td>`;
+          h+=`<td class="c-empty${editCls}"${editAttr}></td>`;
         }
       });
       h+=`<td class="ctot">${count||''}</td></tr>`;
@@ -668,29 +661,13 @@ function openDaySettings(ds){
   if(dow===0||isHol(ds,getMD(curY,curM)))return;
   daySettingsDate=ds;
   const md=getMD(curY,curM);
-  const flags=(md.dayFlags||{})[ds]||{};
   const memo=(md.dayMemos||{})[ds]||'';
-  dayFlagEarly=!!flags.noEarly;
-  dayFlagLate=!!flags.noLate;
   document.getElementById('day-title').textContent=
     `${d.getMonth()+1}月${d.getDate()}日（${DOW_JP[dow]}）`;
   document.getElementById('day-memo-input').value=memo;
-  updateDayFlagButtons();
   document.getElementById('ov-day').classList.add('open');
 }
 
-function toggleDayFlag(type){
-  if(type==='early') dayFlagEarly=!dayFlagEarly;
-  else dayFlagLate=!dayFlagLate;
-  updateDayFlagButtons();
-}
-
-function updateDayFlagButtons(){
-  const eb=document.getElementById('flag-early');
-  const lb=document.getElementById('flag-late');
-  eb.className='flag-btn'+(dayFlagEarly?' on-early':'');
-  lb.className='flag-btn'+(dayFlagLate?' on-late':'');
-}
 
 function saveDaySettings(){
   const md=getMD(curY,curM);
@@ -699,11 +676,6 @@ function saveDaySettings(){
   const memo=document.getElementById('day-memo-input').value.trim();
   if(memo) md.dayMemos[daySettingsDate]=memo;
   else delete md.dayMemos[daySettingsDate];
-  if(dayFlagEarly||dayFlagLate){
-    md.dayFlags[daySettingsDate]={noEarly:dayFlagEarly,noLate:dayFlagLate};
-  }else{
-    delete md.dayFlags[daySettingsDate];
-  }
   saveData();closeOv('ov-day');renderTable();
 }
 
