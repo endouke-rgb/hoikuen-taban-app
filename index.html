@@ -7,180 +7,251 @@
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --blue:#1565C0;--blue-lt:#E3F2FD;--text:#1A237E;--text-sub:#5C6BC0;
-  --shadow:rgba(33,150,243,.12);
+  --blue:#1565C0;--text:#1A237E;--text-sub:#5C6BC0;
+  --r1:22px;--r2:20px;--r3:28px;
+  --cw-cls:54px;--cw-name:82px;--cw-code:22px;
+  --cw-total:26px;--cw-leg:84px;
+  --left1:0px;--left2:54px;--left3:136px;
 }
-body{
-  font-family:'Hiragino Maru Gothic ProN','Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;
-  background:#EEF4FF;min-height:100vh;color:var(--text);
-  -webkit-tap-highlight-color:transparent;
-}
+body{font-family:'Hiragino Maru Gothic ProN','Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;
+  background:#EEF4FF;min-height:100vh;color:var(--text);-webkit-tap-highlight-color:transparent}
 
-/* ── HEADER ── */
-.hdr{
-  position:sticky;top:0;z-index:100;
-  background:linear-gradient(135deg,#1565C0,#42A5F5);
-  padding:8px 12px 8px;box-shadow:0 4px 16px rgba(21,101,192,.3);
-}
-.hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:6px}
-.hdr-title{font-size:14px;font-weight:900;color:white;white-space:nowrap}
-.hdr-btns{display:flex;gap:5px;flex-shrink:0}
-.hbtn{
-  border:none;border-radius:10px;padding:6px 9px;font-size:11px;font-weight:700;
-  cursor:pointer;font-family:inherit;transition:all .18s;white-space:nowrap;
-}
+/* HEADER */
+.hdr{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,#1565C0,#42A5F5);
+  padding:8px 10px;box-shadow:0 4px 16px rgba(21,101,192,.3)}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;gap:6px}
+.hdr-title{font-size:13px;font-weight:900;color:white;white-space:nowrap}
+.hdr-btns{display:flex;gap:4px;flex-shrink:0}
+.hbtn{border:none;border-radius:9px;padding:5px 8px;font-size:11px;font-weight:700;
+  cursor:pointer;font-family:inherit;transition:opacity .18s;white-space:nowrap}
 .hbtn-auto{background:linear-gradient(135deg,#FF6B9D,#FFA726);color:white}
-.hbtn-csv{background:rgba(255,255,255,.2);color:white;border:1.5px solid rgba(255,255,255,.45)}
-.hbtn-cfg{background:rgba(255,255,255,.18);color:white;width:32px;height:32px;padding:0;
-  display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:15px}
-.hbtn:hover{opacity:.85}
-.month-nav{display:flex;align-items:center;justify-content:center;gap:14px}
-.marrow{background:rgba(255,255,255,.22);border:none;border-radius:50%;
-  width:30px;height:30px;font-size:18px;color:white;cursor:pointer;
+.hbtn-csv{background:rgba(255,255,255,.2);color:white;border:1.5px solid rgba(255,255,255,.4)}
+.hbtn-cfg{background:rgba(255,255,255,.18);color:white;width:30px;height:30px;padding:0;
+  display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:14px}
+.hbtn:hover{opacity:.82}
+.mnav{display:flex;align-items:center;justify-content:center;gap:12px}
+.marr{background:rgba(255,255,255,.22);border:none;border-radius:50%;
+  width:28px;height:28px;font-size:17px;color:white;cursor:pointer;
   display:flex;align-items:center;justify-content:center}
-.mlabel{font-size:16px;font-weight:900;color:white;min-width:110px;text-align:center}
+.mlbl{font-size:15px;font-weight:900;color:white;min-width:120px;text-align:center}
 
-/* ── TABLE WRAP ── */
-.twrap{overflow:auto;height:calc(100vh - 90px);-webkit-overflow-scrolling:touch}
+/* TABLE WRAP */
+.twrap{overflow:auto;height:calc(100vh - 88px);-webkit-overflow-scrolling:touch;
+  background:#EEF4FF}
 
-/* ── TABLE ── */
-table{border-collapse:collapse;background:white}
-th,td{border:1px solid #DDE;font-size:11px;font-weight:600;white-space:nowrap;text-align:center;vertical-align:middle}
+/* TABLE BASE */
+table{border-collapse:collapse;background:white;table-layout:fixed}
+th,td{border:1px solid #DDE;font-size:11px;font-weight:600;
+  white-space:nowrap;text-align:center;vertical-align:middle;overflow:hidden}
 
-/* sticky name col */
-.cn{
-  position:sticky;left:0;z-index:20;background:white;
-  width:82px;min-width:82px;max-width:82px;
-  text-align:left;padding:3px 6px;border-right:2px solid #B0BEC5;
-}
-th.cn{background:linear-gradient(135deg,#1E88E5,#7986CB);color:white;z-index:30}
+/* STICKY LEFT COLS */
+.cc{position:sticky;left:var(--left1);z-index:10;
+  width:var(--cw-cls);min-width:var(--cw-cls);max-width:var(--cw-cls);
+  background:#EEF4FF;border-right:2px solid #B0BEC5;text-align:left;
+  padding:2px 4px;font-size:10px;font-weight:900;color:var(--text-sub)}
+.cn{position:sticky;left:var(--left2);z-index:10;
+  width:var(--cw-name);min-width:var(--cw-name);max-width:var(--cw-name);
+  background:white;padding:2px 5px;text-align:left;font-size:11px}
+.cd{position:sticky;left:var(--left3);z-index:10;
+  width:var(--cw-code);min-width:var(--cw-code);max-width:var(--cw-code);
+  background:white;font-size:9px;color:#78909C}
 
-/* sticky total col */
-.ct{
-  position:sticky;right:0;z-index:20;background:#FFF8E1;
-  width:34px;min-width:34px;max-width:34px;
-  border-left:2px solid #FFE082;font-size:11px;font-weight:900;color:#E65100;
-}
-th.ct{background:linear-gradient(135deg,#F57F17,#FFB300);color:white;z-index:30}
+thead .cc,thead .cn,thead .cd{z-index:25;background:linear-gradient(135deg,#1E88E5,#7986CB);
+  color:white;border-color:#5C9CE6}
 
-/* date header */
-thead th.cd{
-  position:sticky;top:0;z-index:15;background:#F0F7FF;
-  width:44px;min-width:44px;max-width:44px;padding:3px 1px;
-}
-thead th.cd.sat{background:#FFF8E1}
-thead th.cd.today{background:#E8F5E9}
+/* STICKY RIGHT COLS */
+.ctot{position:sticky;right:var(--cw-leg);z-index:10;
+  width:var(--cw-total);min-width:var(--cw-total);max-width:var(--cw-total);
+  background:#FFF8E1;border-left:2px solid #FFE082;
+  font-size:11px;font-weight:900;color:#E65100}
+thead .ctot{background:linear-gradient(135deg,#F57F17,#FFB300);color:white;z-index:25}
+
+.cleg{position:sticky;right:0;z-index:10;
+  width:var(--cw-leg);min-width:var(--cw-leg);max-width:var(--cw-leg);
+  background:#F8F9FF;border-left:2px solid #C5CAE9;padding:6px 5px;
+  text-align:left;vertical-align:top}
+thead .cleg{z-index:25;background:linear-gradient(135deg,#303F9F,#5C6BC0);color:white;vertical-align:middle;text-align:center;font-size:10px}
+
+/* DATE HEADER CELLS */
+.hd{width:26px;min-width:26px;max-width:26px;padding:1px 0}
+.hr1 th{position:sticky;top:0;z-index:15}
+.hr2 th{position:sticky;top:var(--r1);z-index:15}
+.hr3 th{position:sticky;top:calc(var(--r1) + var(--r2));z-index:15}
+thead .cc,thead .cn,thead .cd{z-index:26}
+.hr1 .hd{height:var(--r1);font-size:12px;font-weight:900;background:#F0F7FF}
+.hr2 .hd{height:var(--r2);font-size:10px;font-weight:700;background:#F0F7FF}
+.hr3 .hd{height:var(--r3);font-size:9px;background:#FAFBFF;cursor:pointer;vertical-align:top;padding-top:2px}
+.hr3 .hd:hover{background:#EEF4FF}
+
+/* Weekday colors */
+.d-sat{background:#EEF4FF!important;color:#1565C0}
+.d-sun,.d-hol{background:#FFF0F0!important;color:#C62828;cursor:default!important}
+.d-tod{background:#E8F5E9!important}
+.hr1 .d-sat .dnum,.hr2 .d-sat{color:#1565C0!important}
+.hr1 .d-sun .dnum,.hr2 .d-sun,.hr1 .d-hol .dnum,.hr2 .d-hol{color:#C62828!important}
+
 .dnum{font-size:12px;font-weight:900;display:block}
-.ddow{font-size:9px;font-weight:700;display:block;margin-top:1px}
-.ddow.sun{color:#EF5350}.ddow.sat{color:#1E88E5}
+.ddow{font-size:9px;font-weight:700}
+.memo-txt{display:block;writing-mode:vertical-rl;text-orientation:mixed;
+  font-size:8px;color:#5C6BC0;line-height:1.2;max-height:24px;overflow:hidden}
 
-/* principal row */
-.pr-row td{background:#FFF3E0}
-.pr-row td.cn{font-size:10px;font-weight:900;color:#E65100;background:#FFF3E0}
+/* PRINCIPAL ROW */
+.pr-row td{background:#FFF8E8}
+.pr-row .cc{background:#FFF3DC;color:#E65100;font-size:10px}
+.pr-row .cn{background:#FFF8E8;font-weight:800;font-size:11px;color:#E65100}
+.pr-row .cd{background:#FFF8E8}
+.prin-mark{font-size:12px;color:#E65100;font-weight:900}
 
-/* class group header row */
-.cg-row td{background:#E8EAF6;height:18px;padding:0}
-.cg-row td.cn{font-size:9px;font-weight:900;color:var(--text-sub);padding:1px 6px;background:#E8EAF6}
+/* CLASS NAME CELL */
+.cls-cell{background:#E8EAF6;writing-mode:vertical-rl;text-orientation:mixed;
+  transform:rotate(180deg);font-size:9px;font-weight:900;color:#3949AB;
+  text-align:center;padding:4px 2px;border-right:2px solid #9FA8DA}
 
-/* maternity */
-tr.mat td{background:#FFF0F5;opacity:.55}
-tr.mat td.cn::after{content:'産休';font-size:8px;color:#E91E63;
-  background:#FCE4EC;border-radius:4px;padding:1px 3px;margin-left:3px}
+/* STAFF NAME CELL */
+.name-cell{font-size:11px;font-weight:700;color:var(--text)}
+.code-cell{font-size:9px;color:#78909C;font-weight:700}
+.mat-row td{background:#FFF0F5;opacity:.6}
+.mat-badge{font-size:7px;color:#E91E63;background:#FCE4EC;border-radius:3px;
+  padding:0 2px;margin-left:2px;vertical-align:super}
 
-/* cells */
-td.ce{cursor:pointer;padding:2px}
-td.ce:hover{background:#E3F2FD}
-td.crest{background:#ECEFF1;font-size:10px;font-weight:700;color:#78909C;cursor:pointer}
-td.ctrip{background:#FFF3E0;font-size:10px;font-weight:700;color:#E65100;cursor:pointer}
-td.cmat{background:#FFF0F5;cursor:default}
-td.csat-off{background:#FAFAFA;color:#BDBDBD;font-size:9px;cursor:pointer}
-td.csat-off:hover{background:#FFF9E6}
-td.cprin{cursor:pointer}
+/* DATA CELLS */
+.c-edit{cursor:pointer}
+.c-edit:hover{filter:brightness(.93)}
+.c-empty{cursor:pointer}
+.c-empty:hover{background:#E3F2FD}
+.c-sun,.c-hol{background:#FFF0F0;cursor:default}
+.c-sat-off{background:#FAFAFA;color:#BDBDBD;font-size:9px;cursor:pointer}
+.c-sat-off:hover{background:#EEF4FF}
+.c-mat{background:#FFF0F5}
+.c-prin{cursor:pointer}
+.c-prin:hover{background:#FFF3DC}
 
-/* duty badges */
-.badge{display:inline-block;border-radius:6px;padding:2px 5px;font-size:10px;font-weight:900;line-height:1.4}
-.ba1{background:#FFCCBC;color:#BF360C}
-.ba5{background:#FFE0B2;color:#E65100}
-.be{background:#FFF9C4;color:#F57F17}
-.bf{background:#DCEDC8;color:#33691E}
-.bg{background:#B2DFDB;color:#004D40}
-.bln{background:#BBDEFB;color:#0D47A1}
-.bly{background:#E1BEE7;color:#4A148C}
+/* SHIFT BACKGROUNDS */
+.bg-a1{background:#FFCCBC;color:#BF360C}
+.bg-a5{background:#FFE0B2;color:#E65100}
+.bg-e {background:#FFF9C4;color:#E65100}
+.bg-f {background:#DCEDC8;color:#33691E}
+.bg-g {background:#B2DFDB;color:#004D40}
+.bg-ln{background:#BBDEFB;color:#0D47A1}
+.bg-ly{background:#E1BEE7;color:#4A148C}
 
-/* ── OVERLAY / SHEET ── */
+/* STATUS BACKGROUNDS */
+.c-rest{background:#ECEFF1;color:#546E7A;font-size:10px;font-weight:900;cursor:pointer}
+.c-trip{background:#FFF3E0;color:#E65100;font-size:10px;font-weight:900;cursor:pointer}
+.c-nen {background:#F3E5F5;color:#6A1B9A;font-size:10px;font-weight:900;cursor:pointer}
+
+/* LEGEND */
+.leg-item{display:flex;align-items:center;gap:3px;margin-bottom:4px;white-space:nowrap}
+.leg-badge{display:inline-block;border-radius:3px;padding:1px 4px;font-size:9px;font-weight:900;line-height:1.4}
+.leg-time{font-size:8px;color:#546E7A;line-height:1.3}
+
+/* OVERLAY / SHEET */
 .ov{display:none;position:fixed;inset:0;background:rgba(0,0,40,.42);z-index:200;
   align-items:flex-end;justify-content:center;backdrop-filter:blur(3px)}
 .ov.open{display:flex;animation:bgIn .2s}
+.ov-center{align-items:center}
 @keyframes bgIn{from{opacity:0}to{opacity:1}}
 .sheet{background:white;border-radius:24px 24px 0 0;width:100%;max-width:480px;
   max-height:90vh;overflow-y:auto;padding-bottom:24px;
   animation:shUp .3s cubic-bezier(.22,1,.36,1)}
 @keyframes shUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.shdl{width:38px;height:5px;background:#E0E0E0;border-radius:100px;margin:11px auto}
-.shhd{padding:4px 18px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #F5F5F5}
-.shtitle{font-size:15px;font-weight:900;color:var(--text)}
-.shsub{font-size:11px;color:var(--text-sub);margin-top:2px}
-.shclose{width:32px;height:32px;border-radius:50%;border:none;background:#F5F5F5;
-  font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#90A4AE}
-.shbody{padding:14px 18px 0}
+.shdl{width:36px;height:5px;background:#E0E0E0;border-radius:100px;margin:10px auto}
+.shhd{padding:4px 16px 11px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #F0F0F0}
+.shtitle{font-size:14px;font-weight:900;color:var(--text)}
+.shsub{font-size:10px;color:var(--text-sub);margin-top:1px}
+.shclose{width:30px;height:30px;border-radius:50%;border:none;background:#F5F5F5;
+  font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#90A4AE}
+.shbody{padding:12px 16px 0}
 
-/* shift picker */
-.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:12px}
-.sbtn{border:2px solid #EEE;border-radius:11px;padding:8px 2px;background:white;
-  cursor:pointer;font-family:inherit;transition:all .18s;
+/* SHIFT PICKER */
+.spgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.spbtn{border:2px solid #EEE;border-radius:10px;padding:7px 2px;background:white;
+  cursor:pointer;font-family:inherit;transition:all .17s;
   display:flex;flex-direction:column;align-items:center;gap:2px}
-.sbtn:hover{border-color:var(--blue);background:#EBF4FF}
-.sbtn.sel{border-color:var(--blue);background:#E3F2FD}
-.sbtn .sc{font-size:12px;font-weight:900}
-.sbtn .st{font-size:8px;color:#90A4AE;line-height:1.3;text-align:center}
-.sbtn.dis{opacity:.3;cursor:not-allowed}
+.spbtn:hover{border-color:var(--blue);background:#EBF4FF}
+.spbtn.sel{border-color:var(--blue);background:#E3F2FD}
+.spbtn.dis{opacity:.32;cursor:not-allowed;pointer-events:none}
+.spbtn .sc{font-size:11px;font-weight:900;border-radius:4px;padding:1px 4px}
+.spbtn .st{font-size:8px;color:#90A4AE;line-height:1.3;text-align:center}
+.spbtn .sw{font-size:8px;color:#EF5350;line-height:1.3}
 
-/* status buttons */
-.strow{display:flex;gap:7px;margin-bottom:12px}
-.stbtn{flex:1;border:2px solid #EEE;border-radius:11px;padding:9px 4px;
-  background:white;cursor:pointer;font-family:inherit;font-size:12px;font-weight:700;transition:all .18s}
+/* STATUS BUTTONS */
+.strow{display:flex;gap:6px;margin-bottom:10px}
+.stbtn{flex:1;border:2px solid #EEE;border-radius:10px;padding:8px 3px;
+  background:white;cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;
+  transition:all .17s}
 .stbtn:hover{border-color:#90A4AE}
-.stbtn.srest{border-color:#78909C;background:#ECEFF1;color:#546E7A}
-.stbtn.strip{border-color:#FF8F00;background:#FFF3E0;color:#E65100}
+.stbtn.sr{border-color:#78909C;background:#ECEFF1;color:#546E7A}
+.stbtn.st2{border-color:#FF8F00;background:#FFF3E0;color:#E65100}
+.stbtn.sn{border-color:#7B1FA2;background:#F3E5F5;color:#6A1B9A}
 
-/* buttons */
-.btn{display:block;width:100%;padding:12px;border:none;border-radius:13px;
-  font-size:14px;font-weight:900;cursor:pointer;transition:all .2s;font-family:inherit}
-.btn+.btn{margin-top:7px}
-.btn-blue{background:linear-gradient(135deg,#1565C0,#42A5F5);color:white;box-shadow:0 4px 16px rgba(33,150,243,.28)}
-.btn-gray{background:#F5F5F5;color:#78909C}
-.btn-red{background:linear-gradient(135deg,#B71C1C,#EF5350);color:white}
+/* SETTINGS TABS */
+.stab-row{display:flex;border-bottom:2px solid #EEE;margin-bottom:12px}
+.stab{flex:1;padding:8px 0;border:none;background:none;font-size:12px;font-weight:700;
+  color:#90A4AE;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;
+  font-family:inherit;transition:all .17s}
+.stab.active{color:var(--blue);border-bottom-color:var(--blue)}
 
-/* settings */
-.set-sec{margin-bottom:18px}
-.set-title{font-size:12px;font-weight:900;color:var(--text-sub);margin-bottom:8px;
-  padding-bottom:5px;border-bottom:2px solid #EEE}
-.sr{display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:1px solid #F5F5F5}
-.scls{font-size:9px;font-weight:700;padding:2px 5px;border-radius:5px;
-  background:#E3F2FD;color:#1565C0;white-space:nowrap;min-width:32px;text-align:center;flex-shrink:0}
-.sni{flex:1;border:1.5px solid #DDEEFF;border-radius:8px;
-  padding:5px 9px;font-size:13px;font-family:inherit;color:var(--text);outline:none}
-.sni:focus{border-color:var(--blue)}
-.mtog{width:38px;height:22px;border-radius:100px;border:none;cursor:pointer;
+/* CLASS SETTINGS */
+.cls-row{display:flex;align-items:center;gap:7px;padding:7px 0;border-bottom:1px solid #F0F0F0}
+.cls-key{font-size:10px;font-weight:700;background:#E3F2FD;color:#1565C0;
+  border-radius:5px;padding:2px 5px;white-space:nowrap;min-width:28px;text-align:center;flex-shrink:0}
+.cls-ni{flex:1;border:1.5px solid #DDEEFF;border-radius:8px;
+  padding:4px 8px;font-size:12px;font-family:inherit;outline:none}
+.cls-ni:focus{border-color:var(--blue)}
+.cnt-box{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.cnt-num{font-size:13px;font-weight:900;color:var(--text);min-width:18px;text-align:center}
+.cnt-btn{width:24px;height:24px;border-radius:6px;border:none;background:#E3F2FD;
+  color:var(--blue);font-size:16px;font-weight:900;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .17s}
+.cnt-btn:hover{background:var(--blue);color:white}
+.cnt-btn:disabled{background:#EEE;color:#B0BEC5;cursor:not-allowed}
+
+/* STAFF SETTINGS */
+.sr-row{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid #F0F0F0}
+.sr-cls{font-size:9px;font-weight:700;padding:1px 4px;border-radius:4px;
+  background:#E3F2FD;color:#1565C0;white-space:nowrap;min-width:28px;text-align:center;flex-shrink:0}
+.sr-ni{flex:1;border:1.5px solid #DDEEFF;border-radius:7px;
+  padding:4px 7px;font-size:12px;font-family:inherit;outline:none;min-width:0}
+.sr-ni:focus{border-color:var(--blue)}
+.sr-code{width:36px;border:1.5px solid #DDEEFF;border-radius:7px;
+  padding:4px 4px;font-size:11px;font-family:inherit;outline:none;text-align:center}
+.sr-code:focus{border-color:var(--blue)}
+.mtog{width:36px;height:20px;border-radius:100px;border:none;cursor:pointer;
   position:relative;transition:background .2s;flex-shrink:0}
 .mtog::after{content:'';position:absolute;top:2px;left:2px;
-  width:18px;height:18px;border-radius:50%;background:white;transition:left .2s}
+  width:16px;height:16px;border-radius:50%;background:white;transition:left .2s}
 .mtog.on{background:#E91E63}.mtog.on::after{left:18px}
 .mtog.off{background:#B0BEC5}
 
-/* saturday modal */
-.sat-list{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
-.sat-row{display:flex;align-items:center;gap:9px;padding:7px 11px;
-  border:2px solid #EEE;border-radius:11px;cursor:pointer;transition:all .18s}
+/* HOLIDAY SETTINGS */
+.hol-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:12px}
+.hol-dow{text-align:center;font-size:10px;font-weight:700;color:#90A4AE;padding:3px 0}
+.hol-day{padding:6px 0;border:1.5px solid #EEE;border-radius:8px;
+  text-align:center;font-size:11px;font-weight:700;cursor:pointer;transition:all .17s}
+.hol-day.marked{background:#FFEBEE;border-color:#EF5350;color:#C62828}
+.hol-day.empty{background:#FAFAFA;color:#BDBDBD;cursor:default;border:none}
+
+/* SAT MODAL */
+.sat-list{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+.sat-row{display:flex;align-items:center;gap:8px;padding:6px 10px;
+  border:2px solid #EEE;border-radius:10px;cursor:pointer;transition:all .17s}
 .sat-row.ck{border-color:var(--blue);background:#E3F2FD}
-.sat-chk{width:20px;height:20px;border-radius:6px;border:2px solid #B0BEC5;
+.sat-chk{width:20px;height:20px;border-radius:5px;border:2px solid #B0BEC5;
   display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
 .sat-row.ck .sat-chk{background:var(--blue);border-color:var(--blue);color:white}
 
-/* toast */
+/* BUTTONS */
+.btn{display:block;width:100%;padding:11px;border:none;border-radius:12px;
+  font-size:13px;font-weight:900;cursor:pointer;transition:all .2s;font-family:inherit}
+.btn+.btn{margin-top:6px}
+.btn-blue{background:linear-gradient(135deg,#1565C0,#42A5F5);color:white;box-shadow:0 4px 14px rgba(33,150,243,.25)}
+.btn-gray{background:#F5F5F5;color:#78909C}
+
+/* TOAST */
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);
-  background:#323232;color:white;border-radius:12px;padding:10px 20px;
-  font-size:13px;font-weight:700;z-index:500;opacity:0;transition:all .3s;
+  background:#323232;color:white;border-radius:10px;padding:9px 18px;
+  font-size:12px;font-weight:700;z-index:500;opacity:0;transition:all .3s;
   pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
@@ -198,17 +269,17 @@ td.cprin{cursor:pointer}
       <button class="hbtn hbtn-cfg"  onclick="openSettings()">⚙️</button>
     </div>
   </div>
-  <div class="month-nav">
-    <button class="marrow" onclick="changeMonth(-1)">‹</button>
-    <div class="mlabel" id="mlabel"></div>
-    <button class="marrow" onclick="changeMonth(1)">›</button>
+  <div class="mnav">
+    <button class="marr" onclick="changeMonth(-1)">‹</button>
+    <div class="mlbl" id="mlbl"></div>
+    <button class="marr" onclick="changeMonth(1)">›</button>
   </div>
 </div>
 
 <div class="twrap" id="twrap"></div>
 
 <!-- CELL EDIT MODAL -->
-<div class="ov" id="ov-cell" onclick="ovClick(event,'ov-cell')">
+<div class="ov" id="ov-cell" onclick="ovBg(event,'ov-cell')">
   <div class="sheet">
     <div class="shdl"></div>
     <div class="shhd">
@@ -216,10 +287,11 @@ td.cprin{cursor:pointer}
       <button class="shclose" onclick="closeOv('ov-cell')">✕</button>
     </div>
     <div class="shbody">
-      <div class="sgrid" id="shift-grid"></div>
+      <div class="spgrid" id="spgrid"></div>
       <div class="strow">
         <button class="stbtn" id="btn-rest" onclick="setCellStatus('rest')">😴 休み</button>
         <button class="stbtn" id="btn-trip" onclick="setCellStatus('trip')">🚌 出張</button>
+        <button class="stbtn" id="btn-nen"  onclick="setCellStatus('nenkyuu')">📅 年休</button>
         <button class="stbtn" onclick="setCellStatus('clear')">🗑️ クリア</button>
       </div>
     </div>
@@ -227,23 +299,23 @@ td.cprin{cursor:pointer}
 </div>
 
 <!-- SATURDAY MODAL -->
-<div class="ov" id="ov-sat" onclick="ovClick(event,'ov-sat')">
+<div class="ov" id="ov-sat" onclick="ovBg(event,'ov-sat')">
   <div class="sheet">
     <div class="shdl"></div>
     <div class="shhd">
-      <div><div class="shtitle" id="sat-title"></div><div class="shsub">出勤する職員にチェックを入れてください</div></div>
+      <div><div class="shtitle" id="sat-title"></div><div class="shsub">出勤する職員にチェック</div></div>
       <button class="shclose" onclick="closeOv('ov-sat')">✕</button>
     </div>
     <div class="shbody">
       <div class="sat-list" id="sat-list"></div>
-      <button class="btn btn-blue" onclick="saveSatAttendance()">保存する</button>
-      <button class="btn btn-gray" onclick="closeOv('ov-sat')" style="margin-top:7px">キャンセル</button>
+      <button class="btn btn-blue" onclick="saveSatAtt()">保存する</button>
+      <button class="btn btn-gray" onclick="closeOv('ov-sat')" style="margin-top:6px">キャンセル</button>
     </div>
   </div>
 </div>
 
 <!-- SETTINGS MODAL -->
-<div class="ov" id="ov-cfg" onclick="ovClick(event,'ov-cfg')">
+<div class="ov" id="ov-cfg" onclick="ovBg(event,'ov-cfg')">
   <div class="sheet">
     <div class="shdl"></div>
     <div class="shhd">
@@ -251,12 +323,14 @@ td.cprin{cursor:pointer}
       <button class="shclose" onclick="closeOv('ov-cfg')">✕</button>
     </div>
     <div class="shbody">
-      <div class="set-sec">
-        <div class="set-title">職員名・産休フラグ（産休=当番対象外）</div>
-        <div id="staff-settings"></div>
+      <div class="stab-row">
+        <button class="stab active" id="stab0" onclick="switchSettingsTab(0)">クラス</button>
+        <button class="stab"        id="stab1" onclick="switchSettingsTab(1)">職員</button>
+        <button class="stab"        id="stab2" onclick="switchSettingsTab(2)">祝日</button>
       </div>
-      <button class="btn btn-blue" onclick="saveSettings()">保存する</button>
-      <button class="btn btn-gray" onclick="closeOv('ov-cfg')" style="margin-top:7px">キャンセル</button>
+      <div id="stab-content"></div>
+      <button class="btn btn-blue" id="cfg-save-btn" onclick="saveSettings()">保存する</button>
+      <button class="btn btn-gray" onclick="closeOv('ov-cfg')" style="margin-top:6px">閉じる</button>
     </div>
   </div>
 </div>
@@ -264,545 +338,698 @@ td.cprin{cursor:pointer}
 <div class="toast" id="toast"></div>
 
 <script>
-/* ═══════════════════════════════
+/* ══════════════════════════════════════
    CONSTANTS
-═══════════════════════════════ */
+══════════════════════════════════════ */
 const SHIFTS = ['A1','A5','E','F','G','L乳','L幼'];
-const SHIFT_TIME = {'A1':'7:15〜16:00','A5':'7:25〜16:10','E':'8:25〜17:10',
-  'F':'8:30〜17:15','G':'8:45〜17:30','L乳':'10:00〜18:45','L幼':'10:00〜18:45'};
-const BADGE_CLS = {'A1':'ba1','A5':'ba5','E':'be','F':'bf','G':'bg','L乳':'bln','L幼':'bly'};
+const SHIFT_TIME = {A1:'7:15〜16:00',A5:'7:25〜16:10',E:'8:25〜17:10',
+  F:'8:30〜17:15',G:'8:45〜17:30','L乳':'10:00〜18:45','L幼':'10:00〜18:45'};
+const SHIFT_BG = {A1:'bg-a1',A5:'bg-a5',E:'bg-e',F:'bg-f',G:'bg-g','L乳':'bg-ln','L幼':'bg-ly'};
+const SHIFT_LEG_CLS = {A1:'bg-a1',A5:'bg-a5',E:'bg-e',F:'bg-f',G:'bg-g','L乳':'bg-ln','L幼':'bg-ly'};
 const EARLY = new Set(['A1','A5','E']);
 const LATE  = new Set(['L乳','L幼','G']);
 const DOW_JP = ['日','月','火','水','木','金','土'];
+const CLASS_ORDER = ['管理','フリー','0歳','1歳','2歳','3歳','4歳','5歳'];
+const CLASS_TYPE  = {'管理':'admin','フリー':'free','0歳':'nyuji','1歳':'nyuji','2歳':'nyuji','3歳':'yoji','4歳':'yoji','5歳':'yoji'};
+const CLASS_PFX   = {'管理':'admin','フリー':'fr','0歳':'n0','1歳':'n1','2歳':'n2','3歳':'n3','4歳':'n4','5歳':'n5'};
+const CIRCLE = ['','①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'];
+const REIWA_BASE = 2018; // 令和元年 = 2019
 
 const DEFAULT_STAFF = [
-  {id:'fukuen',name:'副園長',cls:'管理',type:'admin'},
-  {id:'free',  name:'フリー',cls:'フリー',type:'free'},
-  {id:'n0_1',name:'0歳①',cls:'0歳',type:'nyuji'},
-  {id:'n0_2',name:'0歳②',cls:'0歳',type:'nyuji'},
-  {id:'n0_3',name:'0歳③',cls:'0歳',type:'nyuji'},
-  {id:'n0_4',name:'0歳④',cls:'0歳',type:'nyuji'},
-  {id:'n0_5',name:'0歳⑤',cls:'0歳',type:'nyuji',maternity:true},
-  {id:'n1_1',name:'1歳①',cls:'1歳',type:'nyuji'},
-  {id:'n1_2',name:'1歳②',cls:'1歳',type:'nyuji'},
-  {id:'n1_3',name:'1歳③',cls:'1歳',type:'nyuji'},
-  {id:'n2_1',name:'2歳①',cls:'2歳',type:'nyuji'},
-  {id:'n2_2',name:'2歳②',cls:'2歳',type:'nyuji'},
-  {id:'n2_3',name:'2歳③',cls:'2歳',type:'nyuji'},
-  {id:'n3_1',name:'3歳①',cls:'3歳',type:'yoji'},
-  {id:'n3_2',name:'3歳②',cls:'3歳',type:'yoji'},
-  {id:'n4_1',name:'4歳①',cls:'4歳',type:'yoji'},
-  {id:'n4_2',name:'4歳②',cls:'4歳',type:'yoji'},
-  {id:'n5_1',name:'5歳①',cls:'5歳',type:'yoji'},
-  {id:'n5_2',name:'5歳②',cls:'5歳',type:'yoji'},
+  {id:'fukuen',name:'副園長',cls:'管理',type:'admin',code:''},
+  {id:'free',  name:'フリー',cls:'フリー',type:'free',code:''},
+  {id:'n0_1',name:'0歳①',cls:'0歳',type:'nyuji',code:''},
+  {id:'n0_2',name:'0歳②',cls:'0歳',type:'nyuji',code:''},
+  {id:'n0_3',name:'0歳③',cls:'0歳',type:'nyuji',code:''},
+  {id:'n0_4',name:'0歳④',cls:'0歳',type:'nyuji',code:''},
+  {id:'n0_5',name:'0歳⑤',cls:'0歳',type:'nyuji',code:'',maternity:true},
+  {id:'n1_1',name:'1歳①',cls:'1歳',type:'nyuji',code:''},
+  {id:'n1_2',name:'1歳②',cls:'1歳',type:'nyuji',code:''},
+  {id:'n1_3',name:'1歳③',cls:'1歳',type:'nyuji',code:''},
+  {id:'n2_1',name:'2歳①',cls:'2歳',type:'nyuji',code:''},
+  {id:'n2_2',name:'2歳②',cls:'2歳',type:'nyuji',code:''},
+  {id:'n2_3',name:'2歳③',cls:'2歳',type:'nyuji',code:''},
+  {id:'n3_1',name:'3歳①',cls:'3歳',type:'yoji',code:''},
+  {id:'n3_2',name:'3歳②',cls:'3歳',type:'yoji',code:''},
+  {id:'n4_1',name:'4歳①',cls:'4歳',type:'yoji',code:''},
+  {id:'n4_2',name:'4歳②',cls:'4歳',type:'yoji',code:''},
+  {id:'n5_1',name:'5歳①',cls:'5歳',type:'yoji',code:''},
+  {id:'n5_2',name:'5歳②',cls:'5歳',type:'yoji',code:''},
 ];
 
-/* ═══════════════════════════════
+/* ══════════════════════════════════════
    STATE
-═══════════════════════════════ */
-let year, month; // current display month
-let appData; // {staff:[], months:{}}
+══════════════════════════════════════ */
+let appData;
+let curY, curM;
+let editDate='', editSid='';
+let satDate=''; let satChecked=new Set();
+let settingsTab=0;
 
-function loadData() {
-  try { appData = JSON.parse(localStorage.getItem('tban_data') || 'null'); } catch(e){ appData=null; }
-  if (!appData) appData = {staff: DEFAULT_STAFF.map(s=>({...s})), months:{}};
-  // ensure all default staff exist
-  DEFAULT_STAFF.forEach(ds => {
-    if (!appData.staff.find(s=>s.id===ds.id))
-      appData.staff.push({...ds});
-  });
+/* ══════════════════════════════════════
+   DATA
+══════════════════════════════════════ */
+function loadData(){
+  try{ appData=JSON.parse(localStorage.getItem('tban2')||'null'); }catch(e){appData=null;}
+  if(!appData) appData={staff:DEFAULT_STAFF.map(s=>({...s})),classNames:{},months:{}};
+  if(!appData.classNames) appData.classNames={};
+  DEFAULT_STAFF.forEach(ds=>{if(!appData.staff.find(s=>s.id===ds.id))appData.staff.push({...ds});});
 }
-function saveData() { localStorage.setItem('tban_data', JSON.stringify(appData)); }
-
-function getStaff(id) { return appData.staff.find(s=>s.id===id); }
-function activeStaff() { return appData.staff.filter(s=>!s.maternity); }
-
-function getMonthKey(y,m) { return `${y}-${String(m+1).padStart(2,'0')}`; }
-function getMD(y,m) {
-  const k = getMonthKey(y,m);
-  if (!appData.months[k]) appData.months[k]={assignments:{},absences:{},principal:{},saturdayAttendance:{}};
+function saveData(){localStorage.setItem('tban2',JSON.stringify(appData));}
+function getS(id){return appData.staff.find(s=>s.id===id);}
+function activeStaff(){return appData.staff.filter(s=>!s.maternity);}
+function clsName(cls){return appData.classNames[cls]||cls;}
+function getMD(y,m){
+  const k=`${y}-${String(m+1).padStart(2,'0')}`;
+  if(!appData.months[k])appData.months[k]={assignments:{},absences:{},principal:{},saturdayAttendance:{},dayMemos:{},holidays:[]};
   return appData.months[k];
 }
-
-/* ═══════════════════════════════
-   DATE HELPERS
-═══════════════════════════════ */
-function toDateStr(d) {
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-function fromDateStr(s) { return new Date(s+'T00:00:00'); }
-
-function getMonthDays(y, m) {
-  const days = [];
-  const d = new Date(y, m, 1);
-  while (d.getMonth() === m) {
-    const dow = d.getDay();
-    if (dow !== 0) days.push(toDateStr(d)); // exclude Sunday
-    d.setDate(d.getDate()+1);
-  }
+function toDateStr(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function fromDate(s){return new Date(s+'T00:00:00');}
+function todayStr(){return toDateStr(new Date());}
+function getMonthDays(y,m){
+  const days=[]; const d=new Date(y,m,1);
+  while(d.getMonth()===m){days.push(toDateStr(d));d.setDate(d.getDate()+1);}
   return days;
 }
+function isHol(ds,md){return(md.holidays||[]).includes(ds);}
+function reiwa(y){const r=y-REIWA_BASE;return r===1?'令和元年':`令和${r}年`;}
 
-function getPrevWorkday(dateStr) {
-  const d = fromDateStr(dateStr);
-  d.setDate(d.getDate()-1);
-  while (d.getDay() === 0) d.setDate(d.getDate()-1); // skip Sunday
-  return toDateStr(d);
+/* ══════════════════════════════════════
+   LEGEND HTML
+══════════════════════════════════════ */
+function buildLegend(){
+  return SHIFTS.map(sh=>`<div class="leg-item"><span class="leg-badge ${SHIFT_LEG_CLS[sh]}">${sh}</span><span class="leg-time">${SHIFT_TIME[sh]}</span></div>`).join('');
 }
 
-function todayStr() { return toDateStr(new Date()); }
+/* ══════════════════════════════════════
+   RENDER
+══════════════════════════════════════ */
+function render(){
+  document.getElementById('mlbl').textContent=`${reiwa(curY)} ${String(curM+1).padStart(2,'0')}月`;
+  renderTable();
+}
 
-/* ═══════════════════════════════
-   RENDER TABLE
-═══════════════════════════════ */
-function render() {
-  document.getElementById('mlabel').textContent = `${year}年${month+1}月`;
-  const days = getMonthDays(year, month);
-  const md = getMD(year, month);
-  const today = todayStr();
+function renderTable(){
+  const days=getMonthDays(curY,curM);
+  const md=getMD(curY,curM);
+  const today=todayStr();
 
-  const classes = [...new Set(appData.staff.map(s=>s.cls))];
+  // Group staff by class
+  const groups={};
+  CLASS_ORDER.forEach(c=>{groups[c]=appData.staff.filter(s=>s.cls===c);});
 
-  let html = '<table><thead><tr>';
-  html += `<th class="cn cd" style="top:0;z-index:30">職員名</th>`;
-  days.forEach(ds => {
-    const d = fromDateStr(ds); const dow = d.getDay();
-    const isSat = dow===6;
-    const isTod = ds===today;
-    const cls = isSat?'sat':'';
-    const todCls = isTod?' today':'';
-    const ddow = isSat?'sat':'';
-    html += `<th class="cd ${cls}${todCls}" data-date="${ds}" onclick="openSatModal('${ds}')" style="${isSat?'cursor:pointer':'cursor:default'}">` +
-      `<span class="dnum">${d.getDate()}</span>` +
-      `<span class="ddow ${ddow}">${DOW_JP[dow]}</span></th>`;
+  // Total tbody rows: 1 (principal) + all staff
+  const totalBodyRows = 1 + appData.staff.length;
+
+  let h='<table>';
+  // colgroup
+  h+=`<colgroup><col style="width:${54}px"><col style="width:82px"><col style="width:22px">`;
+  days.forEach(()=>h+='<col style="width:26px">');
+  h+=`<col style="width:26px"><col style="width:84px"></colgroup>`;
+
+  // ── THEAD ──
+  h+='<thead>';
+
+  // Row 1: date numbers
+  h+='<tr class="hr1">';
+  h+=`<th class="cc" rowspan="3">クラス</th>`;
+  h+=`<th class="cn" rowspan="3">職員名</th>`;
+  h+=`<th class="cd" rowspan="3">CD</th>`;
+  days.forEach(ds=>{
+    const d=fromDate(ds);const dow=d.getDay();
+    const sat=dow===6,sun=dow===0,hol=isHol(ds,md),tod=ds===today;
+    let cls='hd';
+    if(sat)cls+=' d-sat';else if(sun||hol)cls+=' d-sun';
+    if(tod)cls+=' d-tod';
+    const onclick=(sat&&!sun&&!hol)?` onclick="openSatModal('${ds}')" title="土曜出勤設定"`:' ';
+    h+=`<th class="${cls}"${onclick}><span class="dnum">${d.getDate()}</span></th>`;
   });
-  html += `<th class="ct">合計</th></tr></thead><tbody>`;
+  h+=`<th class="ctot" rowspan="3">計</th>`;
+  h+=`<th class="cleg" rowspan="3">シフト</th>`;
+  h+='</tr>';
 
-  // 園長 row
-  html += `<tr class="pr-row"><td class="cn">👑 園長</td>`;
-  days.forEach(ds => {
-    const marked = md.principal[ds];
-    html += `<td class="cprin" onclick="togglePrincipal('${ds}')" title="クリックで切り替え">` +
-      (marked ? '●' : '') + `</td>`;
+  // Row 2: day of week
+  h+='<tr class="hr2">';
+  days.forEach(ds=>{
+    const d=fromDate(ds);const dow=d.getDay();
+    const sat=dow===6,sun=dow===0,hol=isHol(ds,md);
+    let cls='hd';
+    if(sat)cls+=' d-sat';else if(sun||hol)cls+=' d-sun';
+    h+=`<th class="${cls}"><span class="ddow">${DOW_JP[dow]}</span></th>`;
   });
-  html += `<td class="ct"></td></tr>`;
+  h+='</tr>';
 
-  // Staff rows grouped by class
-  let prevCls = null;
-  appData.staff.forEach(s => {
-    if (s.cls !== prevCls) {
-      // Class group header
-      html += `<tr class="cg-row"><td class="cn">${s.cls}</td>`;
-      days.forEach(() => html += '<td></td>');
-      html += `<td class="ct"></td></tr>`;
-      prevCls = s.cls;
-    }
+  // Row 3: memos
+  h+='<tr class="hr3">';
+  days.forEach(ds=>{
+    const d=fromDate(ds);const dow=d.getDay();
+    const sat=dow===6,sun=dow===0,hol=isHol(ds,md);
+    const canEdit=!sun&&!hol;
+    const memo=(md.dayMemos||{})[ds]||'';
+    let cls='hd';
+    if(sat)cls+=' d-sat';else if(sun||hol)cls+=' d-sun';
+    h+=`<th class="${cls}"${canEdit?` onclick="editMemo('${ds}')"`:''}>${memo?`<span class="memo-txt">${escH(memo)}</span>`:''}</th>`;
+  });
+  h+='</tr>';
 
-    const isMat = !!s.maternity;
-    html += `<tr class="${isMat?'mat':''}"><td class="cn">${s.name}</td>`;
-    let count = 0;
+  h+='</thead><tbody>';
 
-    days.forEach(ds => {
-      if (isMat) { html += `<td class="cmat"></td>`; return; }
-      const d = fromDateStr(ds); const isSat = d.getDay()===6;
-      const absence = md.absences[ds]?.[s.id];
-      const assignment = md.assignments[ds];
-      const shift = assignment ? Object.entries(assignment).find(([,id])=>id===s.id)?.[0] : null;
-      const satAtt = md.saturdayAttendance[ds] || [];
+  // ── PRINCIPAL ROW ──
+  h+='<tr class="pr-row">';
+  h+=`<td class="cc pr-row">園長</td>`;
+  h+=`<td class="cn pr-row" style="font-weight:800;color:#E65100">園長</td>`;
+  h+=`<td class="cd pr-row"></td>`;
+  days.forEach(ds=>{
+    const d=fromDate(ds);const dow=d.getDay();
+    const sun=dow===0,hol=isHol(ds,md);
+    if(sun||hol){h+=`<td class="c-sun"></td>`;return;}
+    const marked=(md.principal||{})[ds];
+    h+=`<td class="c-prin" onclick="togglePrin('${ds}')">${marked?'<span class="prin-mark">●</span>':''}</td>`;
+  });
+  h+=`<td class="ctot"></td>`;
+  // Legend rowspan covers all tbody rows
+  h+=`<td class="cleg" rowspan="${totalBodyRows}"><div>${buildLegend()}</div></td>`;
+  h+='</tr>';
 
-      if (absence === 'rest') {
-        html += `<td class="crest ce" onclick="openCell('${ds}','${s.id}')">休</td>`;
-      } else if (absence === 'trip') {
-        html += `<td class="ctrip ce" onclick="openCell('${ds}','${s.id}')">出</td>`;
-      } else if (isSat && !satAtt.includes(s.id)) {
-        html += `<td class="csat-off" onclick="openSatModal('${ds}')" title="土曜出勤設定">－</td>`;
-      } else if (shift) {
-        count++;
-        html += `<td class="ce" onclick="openCell('${ds}','${s.id}')">` +
-          `<span class="badge ${BADGE_CLS[shift]}">${shift}</span></td>`;
-      } else {
-        html += `<td class="ce" onclick="openCell('${ds}','${s.id}')"></td>`;
+  // ── STAFF ROWS ──
+  CLASS_ORDER.forEach(cls=>{
+    const staff=groups[cls]||[];
+    if(!staff.length)return;
+    const cname=clsName(cls);
+
+    staff.forEach((s,idx)=>{
+      const mat=!!s.maternity;
+      h+=`<tr class="${mat?'mat-row':''}">`;
+
+      // Class cell (rowspan for first in class)
+      if(idx===0){
+        h+=`<td class="cc cls-cell" rowspan="${staff.length}">${escH(cname)}</td>`;
       }
-    });
 
-    html += `<td class="ct">${count||''}</td></tr>`;
+      h+=`<td class="cn name-cell">${escH(s.name)}${mat?'<sup class="mat-badge">産</sup>':''}</td>`;
+      h+=`<td class="cd code-cell">${escH(s.code||'')}</td>`;
+
+      let count=0;
+      days.forEach(ds=>{
+        const d=fromDate(ds);const dow=d.getDay();
+        const sun=dow===0,sat=dow===6,hol=isHol(ds,md);
+
+        if(mat){h+=`<td class="c-mat"></td>`;return;}
+        if(sun||hol){h+=`<td class="c-sun"></td>`;return;}
+
+        const satAtt=(md.saturdayAttendance||{})[ds]||[];
+        if(sat&&!satAtt.includes(s.id)){
+          h+=`<td class="c-sat-off" onclick="openSatModal('${ds}')">−</td>`;return;
+        }
+
+        const abs=(md.absences||{})[ds]?.[s.id];
+        if(abs){
+          const lbl=abs==='rest'?'休':abs==='nenkyuu'?'年':'出';
+          const bc=abs==='rest'?'c-rest':abs==='nenkyuu'?'c-nen':'c-trip';
+          h+=`<td class="${bc} c-edit" onclick="openCell('${ds}','${s.id}')">${lbl}</td>`;return;
+        }
+
+        const asgn=(md.assignments||{})[ds]||{};
+        const shift=Object.entries(asgn).find(([,id])=>id===s.id)?.[0];
+        if(shift){
+          count++;
+          h+=`<td class="${SHIFT_BG[shift]||''} c-edit" onclick="openCell('${ds}','${s.id}')" style="font-size:10px;font-weight:900">${shift}</td>`;
+        }else{
+          h+=`<td class="c-empty c-edit" onclick="openCell('${ds}','${s.id}')"></td>`;
+        }
+      });
+
+      h+=`<td class="ctot">${count||''}</td>`;
+      h+='</tr>';
+    });
   });
 
-  html += '</tbody></table>';
-  document.getElementById('twrap').innerHTML = html;
+  h+='</tbody></table>';
+  document.getElementById('twrap').innerHTML=h;
 }
 
-/* ═══════════════════════════════
-   CELL EDIT MODAL
-═══════════════════════════════ */
-let editDate = '', editStaff = '';
+function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-function openCell(ds, sid) {
-  const s = getStaff(sid);
-  if (!s || s.maternity) return;
-  editDate = ds; editStaff = sid;
-  const d = fromDateStr(ds);
-  const isSat = d.getDay() === 6;
-  const md = getMD(year, month);
-  const satAtt = md.saturdayAttendance[ds] || [];
-  if (isSat && !satAtt.includes(sid)) return;
+/* ══════════════════════════════════════
+   CELL EDIT
+══════════════════════════════════════ */
+function openCell(ds,sid){
+  const s=getS(sid);if(!s||s.maternity)return;
+  const d=fromDate(ds);const dow=d.getDay();
+  const md=getMD(curY,curM);
+  const sat=dow===6;
+  if(sat&&!((md.saturdayAttendance||{})[ds]||[]).includes(sid))return;
+  editDate=ds;editSid=sid;
 
-  const absence = md.absences[ds]?.[sid];
-  const assignment = md.assignments[ds] || {};
-  const currentShift = Object.entries(assignment).find(([,id])=>id===sid)?.[0];
+  const abs=(md.absences||{})[ds]?.[sid];
+  const asgn=(md.assignments||{})[ds]||{};
+  const curShift=Object.entries(asgn).find(([,id])=>id===sid)?.[0];
 
-  document.getElementById('cell-title').textContent =
-    `${d.getMonth()+1}月${d.getDate()}日（${DOW_JP[d.getDay()]}） ${s.name}`;
-  document.getElementById('cell-sub').textContent =
-    currentShift ? `現在: ${currentShift}` : absence ? `現在: ${absence==='rest'?'休み':'出張'}` : '未割り当て';
+  document.getElementById('cell-title').textContent=
+    `${d.getMonth()+1}月${d.getDate()}日（${DOW_JP[dow]}） ${s.name}`;
+  document.getElementById('cell-sub').textContent=
+    curShift?`現在: ${curShift}`:abs?`現在: ${abs==='rest'?'休み':abs==='nenkyuu'?'年休':'出張'}`:'未割り当て';
 
-  // Build shift grid
-  let sgHtml = '';
-  SHIFTS.forEach(sh => {
-    const takenBy = assignment[sh];
-    const takenBySomeone = takenBy && takenBy !== sid;
-    const notEligible = !isEligible(s, sh);
-    const classConflict = noClassConflict(s, sh, assignment) === false;
-    const dis = takenBySomeone || notEligible || classConflict;
-    const sel = currentShift === sh ? ' sel' : '';
-    const takenName = takenBySomeone ? getStaff(takenBy)?.name : '';
-    const note = takenBySomeone ? takenName : (notEligible ? '対象外' : (classConflict?'クラス重複':''));
-    sgHtml += `<button class="sbtn${sel}${dis?' dis':''}" onclick="${dis?'':''}" ` +
-      `${dis?'disabled':''} data-sh="${sh}" onclick="pickShift('${sh}')">` +
-      `<span class="sc badge ${BADGE_CLS[sh]}">${sh}</span>` +
-      `<span class="st">${SHIFT_TIME[sh].replace('〜','～')}</span>` +
-      (note?`<span class="st" style="color:#EF5350">${note}</span>`:'') +
-      `</button>`;
+  let sg='';
+  SHIFTS.forEach(sh=>{
+    const takenId=asgn[sh];
+    const takenBySomeone=takenId&&takenId!==sid;
+    const notElig=!isEligible(s,sh);
+    const clsConf=!noClassConflict(s,sh,asgn);
+    const dis=takenBySomeone||notElig||clsConf;
+    const note=takenBySomeone?escH(getS(takenId)?.name||''):notElig?'対象外':clsConf?'クラス重複':'';
+    const sel=curShift===sh?' sel':'';
+    sg+=`<button class="spbtn${sel}${dis?' dis':''}" ${dis?'disabled':''} onclick="pickShift('${sh}')">
+      <span class="sc ${SHIFT_BG[sh]}">${sh}</span>
+      <span class="st">${SHIFT_TIME[sh]}</span>
+      ${note?`<span class="sw">${note}</span>`:''}
+    </button>`;
   });
-  document.getElementById('shift-grid').innerHTML = sgHtml;
-  // Fix onclick (can't use onclick attr with disabled workaround)
-  document.querySelectorAll('#shift-grid .sbtn:not(.dis)').forEach(btn => {
-    btn.onclick = () => pickShift(btn.dataset.sh);
-  });
+  document.getElementById('spgrid').innerHTML=sg;
 
-  const restSel = absence==='rest';
-  const tripSel = absence==='trip';
-  document.getElementById('btn-rest').className = 'stbtn'+(restSel?' srest':'');
-  document.getElementById('btn-trip').className = 'stbtn'+(tripSel?' strip':'');
-
+  document.getElementById('btn-rest').className='stbtn'+(abs==='rest'?' sr':'');
+  document.getElementById('btn-trip').className='stbtn'+(abs==='trip'?' st2':'');
+  document.getElementById('btn-nen').className='stbtn'+(abs==='nenkyuu'?' sn':'');
   document.getElementById('ov-cell').classList.add('open');
 }
 
-function pickShift(sh) {
-  const md = getMD(year, month);
-  if (!md.assignments[editDate]) md.assignments[editDate] = {};
-  // Remove this staff from any current shift this day
-  Object.keys(md.assignments[editDate]).forEach(k => {
-    if (md.assignments[editDate][k] === editStaff) delete md.assignments[editDate][k];
+function pickShift(sh){
+  const md=getMD(curY,curM);
+  if(!md.assignments[editDate])md.assignments[editDate]={};
+  // Remove this person from any current shift today
+  Object.keys(md.assignments[editDate]).forEach(k=>{
+    if(md.assignments[editDate][k]===editSid)delete md.assignments[editDate][k];
   });
-  // Remove whoever currently has this shift
   delete md.assignments[editDate][sh];
-  // Assign
-  md.assignments[editDate][sh] = editStaff;
-  // Clear absence
-  if (md.absences[editDate]) delete md.absences[editDate][editStaff];
-  saveData(); closeOv('ov-cell'); render();
+  md.assignments[editDate][sh]=editSid;
+  if(md.absences[editDate])delete md.absences[editDate][editSid];
+  saveData();closeOv('ov-cell');renderTable();
 }
 
-function setCellStatus(status) {
-  const md = getMD(year, month);
-  if (status === 'clear') {
-    if (md.absences[editDate]) delete md.absences[editDate][editStaff];
-    if (md.assignments[editDate]) {
-      Object.keys(md.assignments[editDate]).forEach(k => {
-        if (md.assignments[editDate][k] === editStaff) delete md.assignments[editDate][k];
+function setCellStatus(status){
+  const md=getMD(curY,curM);
+  if(status==='clear'){
+    if(md.absences[editDate])delete md.absences[editDate][editSid];
+    if(md.assignments[editDate]){
+      Object.keys(md.assignments[editDate]).forEach(k=>{
+        if(md.assignments[editDate][k]===editSid)delete md.assignments[editDate][k];
       });
     }
-  } else {
-    if (!md.absences[editDate]) md.absences[editDate] = {};
-    md.absences[editDate][editStaff] = status;
-    // Remove any duty assignment
-    if (md.assignments[editDate]) {
-      Object.keys(md.assignments[editDate]).forEach(k => {
-        if (md.assignments[editDate][k] === editStaff) delete md.assignments[editDate][k];
+  }else{
+    if(!md.absences[editDate])md.absences[editDate]={};
+    md.absences[editDate][editSid]=status;
+    if(md.assignments[editDate]){
+      Object.keys(md.assignments[editDate]).forEach(k=>{
+        if(md.assignments[editDate][k]===editSid)delete md.assignments[editDate][k];
       });
     }
   }
-  saveData(); closeOv('ov-cell'); render();
+  saveData();closeOv('ov-cell');renderTable();
 }
 
-/* ═══════════════════════════════
-   PRINCIPAL TOGGLE
-═══════════════════════════════ */
-function togglePrincipal(ds) {
-  const md = getMD(year, month);
-  if (md.principal[ds]) delete md.principal[ds];
-  else md.principal[ds] = true;
-  saveData(); render();
+function togglePrin(ds){
+  const md=getMD(curY,curM);
+  if(md.principal[ds])delete md.principal[ds];else md.principal[ds]=true;
+  saveData();renderTable();
 }
 
-/* ═══════════════════════════════
-   SATURDAY MODAL
-═══════════════════════════════ */
-let satEditDate = '';
-let satTempChecked = new Set();
+function editMemo(ds){
+  const md=getMD(curY,curM);
+  const d=fromDate(ds);
+  const cur=(md.dayMemos||{})[ds]||'';
+  const val=prompt(`${d.getMonth()+1}月${d.getDate()}日のメモ（行事・会議名など）`,cur);
+  if(val===null)return;
+  if(!md.dayMemos)md.dayMemos={};
+  if(val.trim())md.dayMemos[ds]=val.trim();
+  else delete md.dayMemos[ds];
+  saveData();renderTable();
+}
 
-function openSatModal(ds) {
-  const d = fromDateStr(ds);
-  if (d.getDay() !== 6) return;
-  satEditDate = ds;
-  const md = getMD(year, month);
-  const current = md.saturdayAttendance[ds] || [];
-  satTempChecked = new Set(current);
-
-  document.getElementById('sat-title').textContent =
+/* ══════════════════════════════════════
+   SATURDAY
+══════════════════════════════════════ */
+function openSatModal(ds){
+  const d=fromDate(ds);if(d.getDay()!==6)return;
+  satDate=ds;
+  const md=getMD(curY,curM);
+  satChecked=new Set((md.saturdayAttendance||{})[ds]||[]);
+  document.getElementById('sat-title').textContent=
     `土曜出勤 ${d.getMonth()+1}月${d.getDate()}日`;
-
-  const active = activeStaff();
-  let html = '';
-  active.forEach(s => {
-    const ck = satTempChecked.has(s.id) ? ' ck' : '';
-    html += `<div class="sat-row${ck}" data-id="${s.id}" onclick="toggleSatStaff('${s.id}')">` +
-      `<div class="sat-chk">${satTempChecked.has(s.id)?'✓':''}</div>` +
-      `<span style="font-size:13px;font-weight:700">${s.name}</span>` +
-      `<span style="font-size:10px;color:#90A4AE;margin-left:auto">${s.cls}</span>` +
-      `</div>`;
-  });
-  document.getElementById('sat-list').innerHTML = html;
+  renderSatList();
   document.getElementById('ov-sat').classList.add('open');
 }
 
-function toggleSatStaff(id) {
-  if (satTempChecked.has(id)) satTempChecked.delete(id);
-  else satTempChecked.add(id);
-  // re-render list rows
-  document.querySelectorAll('#sat-list .sat-row').forEach(row => {
-    const rid = row.dataset.id;
-    const ck = satTempChecked.has(rid);
-    row.className = 'sat-row' + (ck?' ck':'');
-    row.querySelector('.sat-chk').textContent = ck ? '✓' : '';
-  });
+function renderSatList(){
+  const active=activeStaff();
+  document.getElementById('sat-list').innerHTML=active.map(s=>{
+    const ck=satChecked.has(s.id);
+    return`<div class="sat-row${ck?' ck':''}" data-id="${s.id}" onclick="toggleSat('${s.id}')">
+      <div class="sat-chk">${ck?'✓':''}</div>
+      <span style="font-size:12px;font-weight:700">${escH(s.name)}</span>
+      <span style="font-size:9px;color:#90A4AE;margin-left:auto">${escH(clsName(s.cls))}</span>
+    </div>`;
+  }).join('');
 }
 
-function saveSatAttendance() {
-  const md = getMD(year, month);
-  md.saturdayAttendance[satEditDate] = [...satTempChecked];
-  // Remove duties for non-attending staff on this Saturday
-  if (md.assignments[satEditDate]) {
-    Object.keys(md.assignments[satEditDate]).forEach(sh => {
-      const sid = md.assignments[satEditDate][sh];
-      if (!satTempChecked.has(sid)) delete md.assignments[satEditDate][sh];
+function toggleSat(id){
+  if(satChecked.has(id))satChecked.delete(id);else satChecked.add(id);
+  renderSatList();
+}
+
+function saveSatAtt(){
+  const md=getMD(curY,curM);
+  md.saturdayAttendance[satDate]=[...satChecked];
+  // Remove duties for absent staff
+  if(md.assignments[satDate]){
+    Object.keys(md.assignments[satDate]).forEach(sh=>{
+      if(!satChecked.has(md.assignments[satDate][sh]))delete md.assignments[satDate][sh];
     });
   }
-  saveData(); closeOv('ov-sat'); render();
+  saveData();closeOv('ov-sat');renderTable();
 }
 
-/* ═══════════════════════════════
+/* ══════════════════════════════════════
+   AUTO ASSIGN
+══════════════════════════════════════ */
+function isEligible(s,shift){
+  if(shift==='L乳')return s.type==='nyuji'||s.type==='free'||s.type==='admin';
+  if(shift==='L幼')return s.type==='yoji'||s.type==='free'||s.type==='admin';
+  return true;
+}
+function noClassConflict(s,shift,dayAsgn){
+  if(s.cls==='管理'||s.cls==='フリー')return true;
+  const isE=EARLY.has(shift),isL=LATE.has(shift);
+  if(!isE&&!isL)return true;
+  for(const[sh,sid]of Object.entries(dayAsgn)){
+    const s2=getS(sid);if(!s2||s2.cls!==s.cls)continue;
+    if(isE&&EARLY.has(sh))return false;
+    if(isL&&LATE.has(sh))return false;
+  }
+  return true;
+}
+function getAvail(ds,md,isSat){
+  let pool=activeStaff();
+  if(isSat){
+    const att=(md.saturdayAttendance||{})[ds]||[];
+    return pool.filter(s=>att.includes(s.id));
+  }
+  const abs=(md.absences||{})[ds]||{};
+  pool=pool.filter(s=>!abs[s.id]);
+  if((md.principal||{})[ds])pool=pool.filter(s=>s.id!=='fukuen');
+  return pool;
+}
+function getPrevWD(ds){
+  const d=fromDate(ds);
+  d.setDate(d.getDate()-1);
+  while(d.getDay()===0)d.setDate(d.getDate()-1);
+  return toDateStr(d);
+}
+function satShifts(n){return['A1','A5','E','F','G','L乳','L幼'].slice(0,Math.min(n,7));}
+
+function calcScore(s,shift,ds,dow,counts,lastDuty,dowHist,dayAsgn){
+  let sc=100;
+  sc-=(counts[s.id]||0)*8;
+  if(lastDuty[s.id]===getPrevWD(ds))sc-=40;
+  sc-=(dowHist[s.id]?.[dow]||0)*15;
+  const sameType=Object.values(dayAsgn).filter(id=>{const s2=getS(id);return s2&&s2.type===s.type&&s2.type!=='admin'&&s2.type!=='free';}).length;
+  if(sameType>=4)sc-=18;
+  sc+=Math.random()*3;
+  return sc;
+}
+
+function autoAssign(){
+  if(!confirm('当番を自動作成します。この月の既存当番データは上書きされます。よろしいですか？'))return;
+  const md=getMD(curY,curM);
+  md.assignments={};
+  const days=getMonthDays(curY,curM);
+  const counts={};const lastDuty={};const dowHist={};
+  activeStaff().forEach(s=>{counts[s.id]=0;dowHist[s.id]={};});
+  const warns=[];
+  const shiftOrder=['L幼','L乳','G','A1','A5','E','F'];
+
+  for(const ds of days){
+    const d=fromDate(ds);const dow=d.getDay();
+    const isSat=dow===6,isSun=dow===0;
+    if(isSun||isHol(ds,md))continue;
+    const avail=getAvail(ds,md,isSat);
+    if(!avail.length)continue;
+    const toFill=isSat?satShifts(avail.length):shiftOrder;
+    const dayAsgn={};const used=new Set();
+
+    for(const shift of toFill){
+      if(!SHIFTS.includes(shift))continue;
+      const elig=avail.filter(s=>!used.has(s.id)&&isEligible(s,shift)&&noClassConflict(s,shift,dayAsgn));
+      if(!elig.length){if(!isSat)warns.push(`${d.getMonth()+1}/${d.getDate()} ${shift}`);continue;}
+      const scored=elig.map(s=>({s,score:calcScore(s,shift,ds,dow,counts,lastDuty,dowHist,dayAsgn)}));
+      scored.sort((a,b)=>b.score-a.score);
+      const chosen=scored[0].s;
+      dayAsgn[shift]=chosen.id;used.add(chosen.id);
+      counts[chosen.id]=(counts[chosen.id]||0)+1;
+      lastDuty[chosen.id]=ds;
+      dowHist[chosen.id][dow]=(dowHist[chosen.id][dow]||0)+1;
+    }
+    if(Object.keys(dayAsgn).length)md.assignments[ds]=dayAsgn;
+  }
+  saveData();renderTable();
+  if(warns.length)alert('⚠️ 割り当て不足:\n'+warns.join('\n'));
+  else showToast('自動作成完了！ ✨');
+}
+
+/* ══════════════════════════════════════
    SETTINGS
-═══════════════════════════════ */
-function openSettings() {
-  let html = '';
-  appData.staff.forEach(s => {
-    const isMat = !!s.maternity;
-    html += `<div class="sr">` +
-      `<span class="scls">${s.cls}</span>` +
-      `<input class="sni" id="sni-${s.id}" value="${s.name}" placeholder="${s.name}">` +
-      `<button class="mtog ${isMat?'on':'off'}" id="mt-${s.id}" onclick="toggleMat('${s.id}')" title="産休">` +
-      `</button></div>`;
-  });
-  document.getElementById('staff-settings').innerHTML = html;
+══════════════════════════════════════ */
+let cfgClassNames={};
+
+function openSettings(){
+  settingsTab=0;
+  cfgClassNames={...appData.classNames};
+  switchSettingsTab(0);
   document.getElementById('ov-cfg').classList.add('open');
 }
 
-function toggleMat(id) {
-  const btn = document.getElementById('mt-'+id);
-  const isOn = btn.classList.contains('on');
-  btn.classList.toggle('on', !isOn);
-  btn.classList.toggle('off', isOn);
-}
-
-function saveSettings() {
-  appData.staff.forEach(s => {
-    const inp = document.getElementById('sni-'+s.id);
-    if (inp) s.name = inp.value.trim() || s.name;
-    const btn = document.getElementById('mt-'+s.id);
-    if (btn) s.maternity = btn.classList.contains('on');
+function switchSettingsTab(n){
+  settingsTab=n;
+  [0,1,2].forEach(i=>{
+    document.getElementById(`stab${i}`).classList.toggle('active',i===n);
   });
-  saveData(); closeOv('ov-cfg'); render(); showToast('設定を保存しました');
+  const saveBtn=document.getElementById('cfg-save-btn');
+  saveBtn.classList.toggle('hidden',n===2); // holiday tab saves immediately
+
+  const el=document.getElementById('stab-content');
+  if(n===0)el.innerHTML=buildClsTab();
+  else if(n===1)el.innerHTML=buildStaffTab();
+  else{el.innerHTML=buildHolTab();saveBtn.classList.add('hidden');}
 }
 
-/* ═══════════════════════════════
-   AUTO ASSIGN
-═══════════════════════════════ */
-function isEligible(s, shift) {
-  if (shift === 'L乳') return s.type==='nyuji'||s.type==='free'||s.type==='admin';
-  if (shift === 'L幼') return s.type==='yoji'||s.type==='free'||s.type==='admin';
-  return true;
+/* ── CLASS TAB ── */
+function buildClsTab(){
+  let h='<div style="margin-bottom:12px">';
+  ['フリー','0歳','1歳','2歳','3歳','4歳','5歳'].forEach(cls=>{
+    const count=appData.staff.filter(s=>s.cls===cls).length;
+    const dispName=cfgClassNames[cls]!==undefined?cfgClassNames[cls]:(appData.classNames[cls]||cls);
+    h+=`<div class="cls-row">
+      <span class="cls-key">${cls}</span>
+      <input class="cls-ni" id="cni-${cls}" value="${escH(dispName)}" placeholder="${cls}">
+      <div class="cnt-box">
+        <button class="cnt-btn" onclick="removeStaff('${cls}')" ${count<=1?'disabled':''}>−</button>
+        <span class="cnt-num" id="cnt-${cls}">${count}</span>
+        <button class="cnt-btn" onclick="addStaff('${cls}')">＋</button>
+      </div>
+    </div>`;
+  });
+  h+=`<div class="cls-row">
+    <span class="cls-key">管理</span>
+    <span style="font-size:11px;color:#90A4AE;flex:1;padding:4px 8px">副園長（固定・変更不可）</span>
+    <div class="cnt-box"><span class="cnt-num">1</span></div>
+  </div>`;
+  h+='</div>';
+  return h;
 }
 
-function noClassConflict(s, shift, dayAssign) {
-  if (s.cls === '管理' || s.cls === 'フリー') return true;
-  const isE = EARLY.has(shift), isL = LATE.has(shift);
-  if (!isE && !isL) return true;
-  for (const [sh, sid] of Object.entries(dayAssign)) {
-    const s2 = getStaff(sid);
-    if (!s2 || s2.cls !== s.cls) continue;
-    if (isE && EARLY.has(sh)) return false;
-    if (isL && LATE.has(sh)) return false;
-  }
-  return true;
+function addStaff(cls){
+  const clsStaff=appData.staff.filter(s=>s.cls===cls);
+  const n=clsStaff.length+1;
+  const pfx=CLASS_PFX[cls]||cls;
+  const newId=`${pfx}_${Date.now()}`;
+  const num=CIRCLE[n]||`(${n})`;
+  const type=CLASS_TYPE[cls]||'nyuji';
+  appData.staff.push({id:newId,name:`${cls}${num}`,cls,type,code:''});
+  saveData();
+  // Update count display
+  const cnt=document.getElementById(`cnt-${cls}`);
+  if(cnt)cnt.textContent=appData.staff.filter(s=>s.cls===cls).length;
+  // Update minus button
+  const rows=document.querySelectorAll('.cls-row');
+  showToast(`${clsName(cls)}に${cls}${num}を追加しました`);
 }
 
-function getAvailable(ds, md, isSat) {
-  let pool = activeStaff();
-  if (isSat) {
-    const att = md.saturdayAttendance[ds] || [];
-    return pool.filter(s => att.includes(s.id));
-  }
-  const abs = md.absences[ds] || {};
-  pool = pool.filter(s => !abs[s.id]);
-  if (md.principal[ds]) pool = pool.filter(s => s.id !== 'fukuen');
-  return pool;
+function removeStaff(cls){
+  const clsStaff=appData.staff.filter(s=>s.cls===cls);
+  if(clsStaff.length<=1){showToast('最低1名は必要です');return;}
+  const last=clsStaff[clsStaff.length-1];
+  if(!confirm(`「${last.name}」を削除しますか？\nこの職員の当番データもすべて削除されます。`))return;
+  appData.staff.splice(appData.staff.findIndex(s=>s.id===last.id),1);
+  // Remove data from all months
+  Object.values(appData.months).forEach(md=>{
+    Object.values(md.assignments||{}).forEach(da=>{
+      Object.keys(da).forEach(sh=>{if(da[sh]===last.id)delete da[sh];});
+    });
+    Object.values(md.absences||{}).forEach(da=>{delete da[last.id];});
+    Object.keys(md.saturdayAttendance||{}).forEach(ds=>{
+      const arr=md.saturdayAttendance[ds];
+      const i=arr.indexOf(last.id);if(i>-1)arr.splice(i,1);
+    });
+  });
+  saveData();
+  const cnt=document.getElementById(`cnt-${cls}`);
+  if(cnt)cnt.textContent=appData.staff.filter(s=>s.cls===cls).length;
+  showToast(`${last.name}を削除しました`);
 }
 
-function satShifts(n) {
-  return ['A1','A5','E','F','G','L乳','L幼'].slice(0, n);
+/* ── STAFF TAB ── */
+function buildStaffTab(){
+  let h='<div style="margin-bottom:12px">';
+  appData.staff.forEach(s=>{
+    const mat=!!s.maternity;
+    h+=`<div class="sr-row">
+      <span class="sr-cls">${escH(clsName(s.cls))}</span>
+      <input class="sr-ni" id="sni-${s.id}" value="${escH(s.name)}" placeholder="氏名">
+      <input class="sr-code" id="scd-${s.id}" value="${escH(s.code||'')}" placeholder="CD" maxlength="3">
+      <button class="mtog ${mat?'on':'off'}" id="mt-${s.id}" onclick="toggleMat('${s.id}')" title="産休"></button>
+    </div>`;
+  });
+  h+='</div>';
+  return h;
 }
 
-function calcScore(s, shift, ds, dow, counts, lastDuty, dowHist, dayAssign) {
-  let score = 100;
-  score -= (counts[s.id] || 0) * 8;
-  const prev = getPrevWorkday(ds);
-  if (lastDuty[s.id] === prev) score -= 40;
-  score -= (dowHist[s.id]?.[dow] || 0) * 15;
-  // Class type balance in today's assignments
-  const sameTypeInDay = Object.values(dayAssign)
-    .filter(id => { const s2=getStaff(id); return s2&&s2.type===s.type&&s2.type!=='admin'&&s2.type!=='free'; }).length;
-  if (sameTypeInDay >= 4) score -= 18;
-  score += Math.random() * 3;
-  return score;
+function toggleMat(id){
+  const btn=document.getElementById('mt-'+id);
+  const on=btn.classList.contains('on');
+  btn.classList.toggle('on',!on);btn.classList.toggle('off',on);
 }
 
-function autoAssign() {
-  if (!confirm('当番を自動作成します。既存の当番データは上書きされます。よろしいですか？')) return;
-  const md = getMD(year, month);
-  md.assignments = {};
+/* ── HOLIDAY TAB ── */
+function buildHolTab(){
+  const md=getMD(curY,curM);
+  const hols=md.holidays||[];
+  const days=getMonthDays(curY,curM);
+  const firstDow=fromDate(days[0]).getDay();
+  const lastDay=days.length;
+  let h=`<div style="margin-bottom:8px;font-size:12px;color:#546E7A">祝日（当番なし）をタップで設定</div>`;
+  h+='<div class="hol-grid">';
+  DOW_JP.forEach(d=>h+=`<div class="hol-dow">${d}</div>`);
+  for(let i=0;i<firstDow;i++)h+=`<div class="hol-day empty"></div>`;
+  days.forEach(ds=>{
+    const d=fromDate(ds);const dow=d.getDay();
+    const marked=hols.includes(ds);
+    const isSun=dow===0;
+    h+=`<div class="hol-day${marked?' marked':''}${isSun?' d-sun':''}" onclick="toggleHol('${ds}')">${d.getDate()}</div>`;
+  });
+  h+='</div>';
+  return h;
+}
 
-  const days = getMonthDays(year, month);
-  const counts = {}; const lastDuty = {}; const dowHist = {};
-  activeStaff().forEach(s => { counts[s.id]=0; dowHist[s.id]={}; });
+function toggleHol(ds){
+  const md=getMD(curY,curM);
+  if(!md.holidays)md.holidays=[];
+  const i=md.holidays.indexOf(ds);
+  if(i>-1)md.holidays.splice(i,1);else md.holidays.push(ds);
+  saveData();
+  document.getElementById('stab-content').innerHTML=buildHolTab();
+}
 
-  const warnings = [];
-
-  // Shift assignment order: harder (fewer eligible) first
-  const shiftOrder = ['L幼','L乳','G','A1','A5','E','F'];
-
-  for (const ds of days) {
-    const d = fromDateStr(ds); const dow = d.getDay();
-    const isSat = dow === 6;
-    const available = getAvailable(ds, md, isSat);
-    if (!available.length) continue;
-
-    const toFill = isSat ? satShifts(available.length) : shiftOrder;
-    const dayAssign = {};
-    const usedToday = new Set();
-
-    for (const shift of toFill) {
-      if (!SHIFTS.includes(shift)) continue;
-      const eligible = available.filter(s =>
-        !usedToday.has(s.id) &&
-        isEligible(s, shift) &&
-        noClassConflict(s, shift, dayAssign)
-      );
-      if (!eligible.length) {
-        if (!isSat) warnings.push(`${d.getMonth()+1}/${d.getDate()} ${shift}`);
-        continue;
-      }
-      const scored = eligible.map(s => ({s, score: calcScore(s,shift,ds,dow,counts,lastDuty,dowHist,dayAssign)}));
-      scored.sort((a,b) => b.score - a.score);
-      const chosen = scored[0].s;
-      dayAssign[shift] = chosen.id;
-      usedToday.add(chosen.id);
-      counts[chosen.id] = (counts[chosen.id]||0) + 1;
-      lastDuty[chosen.id] = ds;
-      dowHist[chosen.id][dow] = (dowHist[chosen.id][dow]||0) + 1;
+function saveSettings(){
+  // Save class names
+  ['フリー','0歳','1歳','2歳','3歳','4歳','5歳'].forEach(cls=>{
+    const inp=document.getElementById(`cni-${cls}`);
+    if(inp){
+      const v=inp.value.trim();
+      if(v&&v!==cls)appData.classNames[cls]=v;
+      else delete appData.classNames[cls];
     }
-    if (Object.keys(dayAssign).length) md.assignments[ds] = dayAssign;
-  }
-
-  saveData(); render();
-  if (warnings.length) {
-    alert('⚠️ 以下の当番を割り当てできませんでした（出勤可能な職員不足）:\n' + warnings.join('\n'));
-  } else {
-    showToast('自動作成完了！ ✨');
-  }
+  });
+  // Save staff names/codes/maternity
+  appData.staff.forEach(s=>{
+    const ni=document.getElementById('sni-'+s.id);
+    if(ni)s.name=ni.value.trim()||s.name;
+    const cd=document.getElementById('scd-'+s.id);
+    if(cd)s.code=cd.value.trim();
+    const mt=document.getElementById('mt-'+s.id);
+    if(mt)s.maternity=mt.classList.contains('on');
+  });
+  saveData();closeOv('ov-cfg');renderTable();showToast('設定を保存しました');
 }
 
-/* ═══════════════════════════════
+/* ══════════════════════════════════════
    CSV EXPORT
-═══════════════════════════════ */
-function exportCSV() {
-  const md = getMD(year, month);
-  const days = getMonthDays(year, month);
-  const staff = appData.staff;
-
-  const headers = ['職員名', ...days.map(ds => {
-    const d = fromDateStr(ds);
-    return `${d.getMonth()+1}/${d.getDate()}(${DOW_JP[d.getDay()]})`;
-  }), '合計'];
-
-  const rows = [headers];
+══════════════════════════════════════ */
+function exportCSV(){
+  const md=getMD(curY,curM);
+  const days=getMonthDays(curY,curM);
+  const hdr=['クラス','職員名','CD',
+    ...days.map(ds=>{const d=fromDate(ds);return`${d.getMonth()+1}/${d.getDate()}(${DOW_JP[d.getDay()]})`;}),
+    '合計'];
+  const rows=[hdr];
 
   // Principal row
-  const prRow = ['園長', ...days.map(ds => md.principal[ds] ? '●' : ''), ''];
-  rows.push(prRow);
+  rows.push(['','園長','',
+    ...days.map(ds=>{
+      const d=fromDate(ds);const dow=d.getDay();
+      if(dow===0||isHol(ds,md))return'';
+      return(md.principal||{})[ds]?'●':'';
+    }),'']);
 
-  staff.forEach(s => {
-    let count = 0;
-    const cells = days.map(ds => {
-      if (s.maternity) return '産休';
-      const abs = md.absences[ds]?.[s.id];
-      if (abs === 'rest') return '休み';
-      if (abs === 'trip') return '出張';
-      const d = fromDateStr(ds);
-      if (d.getDay()===6 && !(md.saturdayAttendance[ds]||[]).includes(s.id)) return '－';
-      const asgn = md.assignments[ds] || {};
-      const shift = Object.entries(asgn).find(([,id])=>id===s.id)?.[0];
-      if (shift) { count++; return shift; }
-      return '';
+  // Staff rows
+  appData.staff.forEach(s=>{
+    let count=0;
+    const cells=days.map(ds=>{
+      const d=fromDate(ds);const dow=d.getDay();
+      if(s.maternity)return'産休';
+      if(dow===0||isHol(ds,md))return'';
+      const sat=dow===6;
+      if(sat&&!((md.saturdayAttendance||{})[ds]||[]).includes(s.id))return'－';
+      const abs=(md.absences||{})[ds]?.[s.id];
+      if(abs)return abs==='rest'?'休み':abs==='nenkyuu'?'年休':'出張';
+      const asgn=(md.assignments||{})[ds]||{};
+      const shift=Object.entries(asgn).find(([,id])=>id===s.id)?.[0];
+      if(shift){count++;return shift;}
+      return'';
     });
-    rows.push([s.name, ...cells, count]);
+    rows.push([clsName(s.cls),s.name,s.code||'',...cells,count]);
   });
 
-  const bom = '\uFEFF';
-  const csv = bom + rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
-  const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `当番表_${year}年${month+1}月.csv`;
+  const bom='\uFEFF';
+  const csv=bom+rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download=`当番表_${reiwa(curY)}${curM+1}月.csv`;
   a.click();
 }
 
-/* ═══════════════════════════════
+/* ══════════════════════════════════════
    UI HELPERS
-═══════════════════════════════ */
-function changeMonth(d) {
-  month += d;
-  if (month < 0) { month = 11; year--; }
-  if (month > 11) { month = 0; year++; }
+══════════════════════════════════════ */
+function changeMonth(d){
+  curM+=d;
+  if(curM<0){curM=11;curY--;}
+  if(curM>11){curM=0;curY++;}
   render();
 }
-
-function ovClick(e, id) { if (e.target.id === id) closeOv(id); }
-function closeOv(id) { document.getElementById(id).classList.remove('open'); }
-
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2400);
+function ovBg(e,id){if(e.target.id===id)closeOv(id);}
+function closeOv(id){document.getElementById(id).classList.remove('open');}
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2400);
 }
 
-/* ═══════════════════════════════
+/* ══════════════════════════════════════
    INIT
-═══════════════════════════════ */
+══════════════════════════════════════ */
 loadData();
-const now = new Date();
-year = now.getFullYear(); month = now.getMonth();
+const now=new Date();
+curY=now.getFullYear();curM=now.getMonth();
 render();
 </script>
 </body>
