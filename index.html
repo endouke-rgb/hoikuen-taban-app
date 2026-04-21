@@ -244,6 +244,30 @@ thead .cc,thead .cn,thead .cd{z-index:26}
 .btn-blue{background:linear-gradient(135deg,#1565C0,#42A5F5);color:white;box-shadow:0 4px 14px rgba(33,150,243,.25)}
 .btn-gray{background:#F5F5F5;color:#78909C}
 
+/* MATRIX */
+.mtx-wrap{overflow-x:auto;margin-bottom:12px;-webkit-overflow-scrolling:touch}
+.mtx-table{border-collapse:collapse;font-size:10px;width:100%}
+.mtx-table th,.mtx-table td{border:1px solid #DDE;padding:3px 4px;text-align:center;
+  white-space:nowrap;font-weight:600}
+.mtx-table thead th{background:linear-gradient(135deg,#1E88E5,#7986CB);color:white;
+  font-size:10px;font-weight:900;position:sticky;top:0;z-index:5}
+.mtx-table .mtx-cls{background:#E8EAF6;color:#3949AB;font-weight:900;font-size:9px;
+  writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg);
+  padding:4px 2px;width:20px}
+.mtx-table .mtx-name{text-align:left;padding:3px 6px;background:white;
+  position:sticky;left:0;z-index:3;min-width:72px;font-size:10px}
+.mtx-table .mtx-tot{background:#FFF8E1;font-weight:900;color:#E65100}
+.mtx-table .mtx-col-tot{background:#E3F2FD;font-weight:900;color:#1565C0}
+.mtx-table tr:nth-child(even) .mtx-name{background:#FAFAFA}
+.mtx-table .mtx-cls-first td:first-child{border-top:2px solid #9FA8DA}
+.mtx-val{font-size:11px;font-weight:900;color:#1A237E}
+.mtx-val.zero{color:#BDBDBD;font-weight:400}
+.mtx-nav{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px}
+.mtx-yr{font-size:14px;font-weight:900;color:var(--text)}
+.mtx-arr{background:#E3F2FD;border:none;border-radius:50%;width:28px;height:28px;
+  font-size:16px;color:var(--blue);cursor:pointer;display:flex;align-items:center;
+  justify-content:center}
+
 /* TOAST */
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);
   background:#323232;color:white;border-radius:10px;padding:9px 18px;
@@ -263,6 +287,7 @@ thead .cc,thead .cn,thead .cd{z-index:26}
       <button class="hbtn hbtn-auto" onclick="autoAssign()">🪄 自動作成</button>
       <button class="hbtn hbtn-csv"  onclick="exportCSV()">📥 CSV</button>
       <button class="hbtn hbtn-leg"  onclick="openLegend()">📋 凡例</button>
+      <button class="hbtn hbtn-csv"  onclick="openMatrix()">📊 集計</button>
       <button class="hbtn hbtn-cfg"  onclick="openSettings()">⚙️</button>
     </div>
   </div>
@@ -286,6 +311,25 @@ thead .cc,thead .cn,thead .cd{z-index:26}
     <div class="leg-item"><span class="leg-badge bg-g">G</span><span class="leg-time">8:45〜17:30</span></div>
     <div class="leg-item"><span class="leg-badge bg-ln">L1</span><span class="leg-time">10:00〜18:45</span></div>
     <div class="leg-item"><span class="leg-badge bg-ly">L2</span><span class="leg-time">10:00〜18:45</span></div>
+  </div>
+</div>
+
+<!-- MATRIX MODAL -->
+<div class="ov ov-center" id="ov-mtx" onclick="ovBg(event,'ov-mtx')">
+  <div class="sheet" style="border-radius:20px;max-height:88vh;max-width:520px;width:96%">
+    <div class="shdl"></div>
+    <div class="shhd">
+      <div><div class="shtitle">📊 シフト集計</div><div class="shsub" id="mtx-sub"></div></div>
+      <button class="shclose" onclick="closeOv('ov-mtx')">✕</button>
+    </div>
+    <div class="shbody" style="padding-top:8px">
+      <div class="mtx-nav">
+        <button class="mtx-arr" onclick="changeMatrixYear(-1)">‹</button>
+        <div class="mtx-yr" id="mtx-yr"></div>
+        <button class="mtx-arr" onclick="changeMatrixYear(1)">›</button>
+      </div>
+      <div class="mtx-wrap"><div id="mtx-content"></div></div>
+    </div>
   </div>
 </div>
 
@@ -666,6 +710,97 @@ function toggleSatCell(ds, sid){
    LEGEND
 ══════════════════════════════════════ */
 function openLegend(){document.getElementById('ov-leg').classList.add('open');}
+
+/* ══════════════════════════════════════
+   MATRIX（シフト種別×職員 集計）
+══════════════════════════════════════ */
+let matrixFY; // 表示中の年度（例: 2026 = 2026年4月〜2027年3月）
+
+function fiscalYear(y, m){ return m >= 3 ? y : y - 1; } // m: 0-indexed
+
+function getFYMonthKeys(fy){
+  const keys=[];
+  for(let m=3;m<=11;m++) keys.push(`${fy}-${String(m+1).padStart(2,'0')}`);
+  for(let m=0;m<=2;m++) keys.push(`${fy+1}-${String(m+1).padStart(2,'0')}`);
+  return keys;
+}
+
+function calcMatrix(fy){
+  // staffId → shiftType → count
+  const matrix={};
+  appData.staff.forEach(s=>{ matrix[s.id]={}; SHIFTS.forEach(sh=>{matrix[s.id][sh]=0;}); });
+
+  const monthKeys=getFYMonthKeys(fy);
+  monthKeys.forEach(mk=>{
+    const md=appData.months[mk];
+    if(!md||!md.assignments)return;
+    Object.values(md.assignments).forEach(dayAsgn=>{
+      SHIFTS.forEach(sh=>{
+        const sid=dayAsgn[sh];
+        if(sid&&matrix[sid]) matrix[sid][sh]=(matrix[sid][sh]||0)+1;
+      });
+    });
+  });
+  return matrix;
+}
+
+function renderMatrix(){
+  const fy=matrixFY;
+  document.getElementById('mtx-yr').textContent=`${reiwa(fy)}度（${fy}/4〜${fy+1}/3）`;
+  document.getElementById('mtx-sub').textContent=`${fy}年4月〜${fy+1}年3月`;
+
+  const matrix=calcMatrix(fy);
+  const staff=appData.staff;
+
+  // 列合計
+  const colTot={};
+  SHIFTS.forEach(sh=>{ colTot[sh]=staff.reduce((s,p)=>s+(matrix[p.id]?.[sh]||0),0); });
+
+  let h='<table class="mtx-table"><thead><tr>';
+  h+='<th style="min-width:72px;text-align:left;padding-left:6px">職員名</th>';
+  SHIFTS.forEach(sh=>h+=`<th>${sh}</th>`);
+  h+='<th class="mtx-tot">計</th>';
+  h+='</tr></thead><tbody>';
+
+  let prevCls='';
+  staff.forEach(s=>{
+    const isNew=s.cls!==prevCls;
+    prevCls=s.cls;
+    const mat=!!s.maternity;
+    const rowTotal=SHIFTS.reduce((sum,sh)=>sum+(matrix[s.id]?.[sh]||0),0);
+    h+=`<tr class="${isNew?'mtx-cls-first':''}">`;
+    h+=`<td class="mtx-name${mat?' mat-row':''}">${escH(clsName(s.cls))} ${escH(s.name)}${mat?'<sup class="mat-badge">産</sup>':''}</td>`;
+    SHIFTS.forEach(sh=>{
+      const v=matrix[s.id]?.[sh]||0;
+      h+=`<td class="${mat?'mat-row':''}"><span class="mtx-val${v===0?' zero':''}">${v||'—'}</span></td>`;
+    });
+    h+=`<td class="mtx-tot${mat?' mat-row':''}">${rowTotal||'—'}</td>`;
+    h+='</tr>';
+  });
+
+  // 列合計行
+  const grandTotal=SHIFTS.reduce((s,sh)=>s+colTot[sh],0);
+  h+='<tr style="border-top:2px solid #1565C0">';
+  h+='<td class="mtx-name" style="font-weight:900;color:#1565C0">合　計</td>';
+  SHIFTS.forEach(sh=>h+=`<td class="mtx-col-tot">${colTot[sh]||'—'}</td>`);
+  h+=`<td class="mtx-tot" style="background:#FFF3E0">${grandTotal||'—'}</td>`;
+  h+='</tr>';
+
+  h+='</tbody></table>';
+  document.getElementById('mtx-content').innerHTML=h;
+}
+
+function openMatrix(){
+  const now=new Date();
+  matrixFY=fiscalYear(now.getFullYear(), now.getMonth());
+  renderMatrix();
+  document.getElementById('ov-mtx').classList.add('open');
+}
+
+function changeMatrixYear(d){
+  matrixFY+=d;
+  renderMatrix();
+}
 
 /* ══════════════════════════════════════
    AUTO ASSIGN（土曜はスキップ）
