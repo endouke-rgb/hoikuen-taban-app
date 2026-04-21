@@ -118,6 +118,8 @@ thead .cc,thead .cn,thead .cd{z-index:26}
 .c-rest{background:#ECEFF1;color:#546E7A;font-size:10px;font-weight:900;cursor:pointer}
 .c-trip{background:#FFF3E0;color:#E65100;font-size:10px;font-weight:900;cursor:pointer}
 .c-nen {background:#F3E5F5;color:#6A1B9A;font-size:10px;font-weight:900;cursor:pointer}
+.c-ne  {background:#FFF3F3;color:#C62828;font-size:10px;font-weight:900;cursor:pointer}
+.c-nl  {background:#EEF4FF;color:#1565C0;font-size:10px;font-weight:900;cursor:pointer}
 
 /* LEGEND CARD */
 .leg-card{background:white;border-radius:16px;padding:16px 20px;min-width:200px;
@@ -186,6 +188,8 @@ thead .cc,thead .cn,thead .cd{z-index:26}
 .stbtn.sr{border-color:#78909C;background:#ECEFF1;color:#546E7A}
 .stbtn.st2{border-color:#FF8F00;background:#FFF3E0;color:#E65100}
 .stbtn.sn{border-color:#7B1FA2;background:#F3E5F5;color:#6A1B9A}
+.stbtn.sne{border-color:#C62828;background:#FFF3F3;color:#C62828}
+.stbtn.snl{border-color:#1565C0;background:#EEF4FF;color:#1565C0}
 
 /* DAY SETTINGS */
 .day-flag-row{display:flex;gap:8px;margin-bottom:10px}
@@ -348,6 +352,10 @@ thead .cc,thead .cn,thead .cd{z-index:26}
     </div>
     <div class="shbody">
       <div class="spgrid" id="spgrid"></div>
+      <div class="strow">
+        <button class="stbtn" id="btn-ne" onclick="setCellStatus('noEarly')">🌅 早番×</button>
+        <button class="stbtn" id="btn-nl" onclick="setCellStatus('noLate')">🌙 遅番×</button>
+      </div>
       <div class="strow">
         <button class="stbtn" id="btn-rest" onclick="setCellStatus('rest')">😴 休み</button>
         <button class="stbtn" id="btn-trip" onclick="setCellStatus('trip')">🚌 出張</button>
@@ -553,6 +561,8 @@ function renderTable(){
           return;
         }
         const abs=(md.absences||{})[ds]?.[s.id];
+        if(abs==='noEarly'){h+=`<td class="c-ne c-edit" onclick="openCell('${ds}','${s.id}')">早×</td>`;return;}
+        if(abs==='noLate') {h+=`<td class="c-nl c-edit" onclick="openCell('${ds}','${s.id}')">遅×</td>`;return;}
         if(abs){
           const lbl=abs==='rest'?'休':abs==='nenkyuu'?'年':'出';
           const bc=abs==='rest'?'c-rest':abs==='nenkyuu'?'c-nen':'c-trip';
@@ -594,7 +604,7 @@ function openCell(ds,sid){
   document.getElementById('cell-title').textContent=
     `${d.getMonth()+1}月${d.getDate()}日（${DOW_JP[dow]}） ${s.name}`;
   document.getElementById('cell-sub').textContent=
-    curShift?`現在: ${curShift}`:abs?`現在: ${abs==='rest'?'休み':abs==='nenkyuu'?'年休':'出張'}`:'未割り当て';
+    curShift?`現在: ${curShift}`:abs?`現在: ${abs==='rest'?'休み':abs==='nenkyuu'?'年休':abs==='noEarly'?'早番×':abs==='noLate'?'遅番×':'出張'}`:'未割り当て';
 
   let sg='';
   SHIFTS.forEach(sh=>{
@@ -612,6 +622,8 @@ function openCell(ds,sid){
     </button>`;
   });
   document.getElementById('spgrid').innerHTML=sg;
+  document.getElementById('btn-ne').className='stbtn'+(abs==='noEarly'?' sne':'');
+  document.getElementById('btn-nl').className='stbtn'+(abs==='noLate'?' snl':'');
   document.getElementById('btn-rest').className='stbtn'+(abs==='rest'?' sr':'');
   document.getElementById('btn-trip').className='stbtn'+(abs==='trip'?' st2':'');
   document.getElementById('btn-nen').className='stbtn'+(abs==='nenkyuu'?' sn':'');
@@ -810,7 +822,7 @@ function noClassConflict(s,shift,dayAsgn){
 function getAvailWeekday(ds,md){
   let pool=activeStaff();
   const abs=(md.absences||{})[ds]||{};
-  return pool.filter(s=>!abs[s.id]);
+  return pool.filter(s=>{const a=abs[s.id];return !a||a==='noEarly'||a==='noLate';});
 }
 
 function getPrevWD(ds){
@@ -834,9 +846,9 @@ function calcScore(s,shift,ds,dow,counts,shiftCounts,lastDuty,dowHist,eligPool){
 }
 
 function autoAssign(){
-  if(!confirm('当番を自動作成します。この月の既存当番データは上書きされます。よろしいですか？'))return;
+  if(!confirm('当番を自動作成します。既存のシフト・年休などのデータは保持したまま、未割り当てのシフトを埋めます。よろしいですか？'))return;
   const md=getMD(curY,curM);
-  md.assignments={};
+  if(!md.assignments)md.assignments={};
   const days=getMonthDays(curY,curM);
   const counts={};const shiftCounts={};const lastDuty={};const dowHist={};
   activeStaff().forEach(s=>{
@@ -844,6 +856,18 @@ function autoAssign(){
     SHIFTS.forEach(sh=>{shiftCounts[s.id][sh]=0;});
     dowHist[s.id]={};
   });
+  // 既存データからカウントを初期化
+  for(const ds of days){
+    const existing=(md.assignments[ds])||{};
+    const d=fromDate(ds);const dow=d.getDay();
+    for(const [sh,sid] of Object.entries(existing)){
+      if(!counts[sid]&&counts[sid]!==0)continue;
+      counts[sid]=(counts[sid]||0)+1;
+      shiftCounts[sid][sh]=(shiftCounts[sid][sh]||0)+1;
+      lastDuty[sid]=ds;
+      dowHist[sid][dow]=(dowHist[sid][dow]||0)+1;
+    }
+  }
   const warns=[];
 
   for(const ds of days){
@@ -852,13 +876,17 @@ function autoAssign(){
     const avail=getAvailWeekday(ds,md);
     if(!avail.length)continue;
     const flags=(md.dayFlags||{})[ds]||{};
+    const absMap=(md.absences||{})[ds]||{};
     // この日に使用するシフト（早番×/遅番× フラグを考慮）
     const useShifts=SHIFTS.filter(sh=>{
       if(flags.noEarly&&EARLY.has(sh))return false;
       if(flags.noLate&&LATE.has(sh))return false;
       return true;
     });
-    const dayAsgn={};const used=new Set();
+    // 既存割り当てを dayAsgn と used に反映
+    const existing=(md.assignments[ds])||{};
+    const dayAsgn={...existing};
+    const used=new Set(Object.values(existing));
 
     // 各シフトの平均担当回数が少ない順に処理
     const orderedShifts=[...useShifts].sort((a,b)=>{
@@ -868,7 +896,16 @@ function autoAssign(){
     });
 
     for(const shift of orderedShifts){
-      const elig=avail.filter(s=>!used.has(s.id)&&noClassConflict(s,shift,dayAsgn));
+      if(dayAsgn[shift])continue; // 既存割り当てはスキップ
+      // 職員ごとの noEarly/noLate 制限も考慮
+      const elig=avail.filter(s=>{
+        if(used.has(s.id))return false;
+        if(!noClassConflict(s,shift,dayAsgn))return false;
+        const sa=absMap[s.id];
+        if(sa==='noEarly'&&EARLY.has(shift))return false;
+        if(sa==='noLate'&&LATE.has(shift))return false;
+        return true;
+      });
       if(!elig.length){warns.push(`${d.getMonth()+1}/${d.getDate()} ${shift}`);continue;}
       const scored=elig.map(s=>({s,score:calcScore(s,shift,ds,dow,counts,shiftCounts,lastDuty,dowHist,elig)}));
       scored.sort((a,b)=>b.score-a.score);
