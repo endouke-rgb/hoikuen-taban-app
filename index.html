@@ -20,8 +20,8 @@ body{font-family:'Hiragino Maru Gothic ProN','Hiragino Kaku Gothic ProN','Noto S
   padding:8px 10px;box-shadow:0 4px 16px rgba(21,101,192,.3)}
 .hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;gap:6px}
 .hdr-title{font-size:13px;font-weight:900;color:white;white-space:nowrap}
-.hdr-btns{display:flex;gap:4px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end}
-.hbtn{border:none;border-radius:9px;padding:5px 8px;font-size:11px;font-weight:700;
+.hdr-btns{display:flex;gap:3px;flex-shrink:0;flex-wrap:nowrap;align-items:center}
+.hbtn{border:none;border-radius:9px;padding:4px 7px;font-size:11px;font-weight:700;
   cursor:pointer;font-family:inherit;transition:opacity .18s;white-space:nowrap}
 .hbtn-auto{background:linear-gradient(135deg,#FF6B9D,#FFA726);color:white}
 .hbtn-csv{background:rgba(255,255,255,.2);color:white;border:1.5px solid rgba(255,255,255,.4)}
@@ -268,7 +268,7 @@ thead .cc,thead .cn,thead .cd{z-index:26}
   <div class="hdr-top">
     <div class="hdr-title">📋 当番割り当て</div>
     <div class="hdr-btns">
-      <button class="hbtn hbtn-auto" onclick="autoAssign()">🪄 自動作成</button>
+      <button class="hbtn hbtn-auto" onclick="autoAssign()">🪄 作成</button>
       <button class="hbtn hbtn-csv"  onclick="exportCSV()">📥 CSV</button>
       <button class="hbtn hbtn-leg"  onclick="openLegend()">📋 凡例</button>
       <button class="hbtn hbtn-csv"  onclick="openMatrix()">📊 集計</button>
@@ -794,7 +794,10 @@ function noClassConflict(s,shift,dayAsgn){
 function getAvailWeekday(ds,md){
   let pool=activeStaff();
   const abs=(md.absences||{})[ds]||{};
-  return pool.filter(s=>{const a=abs[s.id];return !a||a==='noEarly'||a==='noLate';});
+  return pool.filter(s=>{
+    if(s.id==='encho')return false;
+    const a=abs[s.id];return !a||a==='noEarly'||a==='noLate';
+  });
 }
 
 function getPrevWD(ds){
