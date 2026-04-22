@@ -88,8 +88,8 @@ thead .cc,thead .cn,thead .cd{z-index:26}
 .flag-late{font-size:7px;font-weight:900;color:#1565C0;line-height:1}
 
 /* CLASS NAME CELL */
-.cls-cell{background:#E8EAF6;writing-mode:vertical-rl;text-orientation:mixed;
-  transform:rotate(180deg);font-size:9px;font-weight:900;color:#3949AB;
+.cls-cell{background:#E8EAF6;writing-mode:vertical-lr;text-orientation:mixed;
+  font-size:9px;font-weight:900;color:#3949AB;
   text-align:center;padding:4px 2px;border-right:2px solid #9FA8DA}
 .name-cell{font-size:11px;font-weight:700;color:var(--text)}
 .code-cell{font-size:9px;color:#78909C;font-weight:700}
@@ -396,15 +396,15 @@ const SHIFT_BG = {A1:'bg-a1',A5:'bg-a5',E:'bg-e',F:'bg-f',G:'bg-g',L1:'bg-ln',L2
 const EARLY = new Set(['A1','A5','E']);
 const LATE  = new Set(['L1','L2','G']);
 const DOW_JP = ['日','月','火','水','木','金','土'];
-const CLASS_ORDER = ['管理','フリー','0歳','1歳','2歳','3歳','4歳','5歳'];
-const CLASS_TYPE  = {'管理':'admin','フリー':'free','0歳':'nyuji','1歳':'nyuji','2歳':'nyuji','3歳':'yoji','4歳':'yoji','5歳':'yoji'};
-const CLASS_PFX   = {'管理':'kanri','フリー':'fr','0歳':'n0','1歳':'n1','2歳':'n2','3歳':'n3','4歳':'n4','5歳':'n5'};
+const CLASS_ORDER = ['園長','副園長','フリー','0歳','1歳','2歳','3歳','4歳','5歳'];
+const CLASS_TYPE  = {'園長':'encho','副園長':'admin','フリー':'free','0歳':'nyuji','1歳':'nyuji','2歳':'nyuji','3歳':'yoji','4歳':'yoji','5歳':'yoji'};
+const CLASS_PFX   = {'園長':'encho','副園長':'fukuen','フリー':'fr','0歳':'n0','1歳':'n1','2歳':'n2','3歳':'n3','4歳':'n4','5歳':'n5'};
 const CIRCLE = ['','①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'];
 const REIWA_BASE = 2018;
 
 const DEFAULT_STAFF = [
-  {id:'encho', name:'園長',  cls:'管理',type:'admin',code:''},
-  {id:'fukuen',name:'副園長',cls:'管理',type:'admin',code:''},
+  {id:'encho', name:'園長',  cls:'園長', type:'encho',code:''},
+  {id:'fukuen',name:'副園長',cls:'副園長',type:'admin',code:''},
   {id:'free',  name:'フリー',cls:'フリー',type:'free',code:''},
   {id:'n0_1',name:'0歳①',cls:'0歳',type:'nyuji',code:''},
   {id:'n0_2',name:'0歳②',cls:'0歳',type:'nyuji',code:''},
@@ -443,6 +443,11 @@ function loadData(){
   if(!appData) appData={staff:DEFAULT_STAFF.map(s=>({...s})),classNames:{},months:{}};
   if(!appData.classNames) appData.classNames={};
   DEFAULT_STAFF.forEach(ds=>{if(!appData.staff.find(s=>s.id===ds.id))appData.staff.push({...ds});});
+  // migrate: 管理 → 園長/副園長
+  appData.staff.forEach(s=>{
+    if(s.id==='encho'&&s.cls==='管理'){s.cls='園長';s.type='encho';}
+    if(s.id==='fukuen'&&s.cls==='管理'){s.cls='副園長';}
+  });
 }
 function saveData(){localStorage.setItem('tban2',JSON.stringify(appData));}
 function getS(id){return appData.staff.find(s=>s.id===id);}
@@ -552,7 +557,7 @@ function renderTable(){
             :`<td class="c-sat-off" onclick="toggleSatCell('${ds}','${s.id}')">－</td>`;
           return;
         }
-        if(s.id==='encho'){
+        if(s.cls==='園長'){
           const isPrincipal=(md.principal||{})[ds];
           h+=isPrincipal
             ?`<td class="c-principal c-edit" onclick="togglePrincipal('${ds}')">●</td>`
@@ -600,7 +605,7 @@ function openCell(ds,sid){
   const asgn=(md.assignments||{})[ds]||{};
   const curShift=Object.entries(asgn).find(([,id])=>id===sid)?.[0];
   const isPrincipalDay=(md.principal||{})[ds];
-  const h3Block=sid==='fukuen'&&isPrincipalDay;
+  const h3Block=s.cls==='副園長'&&isPrincipalDay;
 
   document.getElementById('cell-title').textContent=
     `${d.getMonth()+1}月${d.getDate()}日（${DOW_JP[dow]}） ${s.name}`;
@@ -796,7 +801,7 @@ function changeMatrixYear(d){matrixFY+=d;renderMatrix();}
 function isEligible(s,shift){return true;}
 
 function noClassConflict(s,shift,dayAsgn){
-  if(s.cls==='管理'||s.cls==='フリー')return true;
+  if(s.cls==='園長'||s.cls==='副園長'||s.cls==='フリー')return true;
   const isE=EARLY.has(shift),isL=LATE.has(shift);
   if(!isE&&!isL)return true;
   for(const[sh,sid]of Object.entries(dayAsgn)){
@@ -812,8 +817,8 @@ function getAvailWeekday(ds,md){
   const abs=(md.absences||{})[ds]||{};
   const isPrincipalDay=(md.principal||{})[ds];
   return pool.filter(s=>{
-    if(s.id==='encho')return false;
-    if(s.id==='fukuen'&&isPrincipalDay)return false;
+    if(s.cls==='園長')return false;
+    if(s.cls==='副園長'&&isPrincipalDay)return false;
     const a=abs[s.id];return !a||a==='noEarly'||a==='noLate';
   });
 }
@@ -1080,7 +1085,7 @@ function exportCSV(){
         const satAtt=(md.saturdayAttendance||{})[ds]||[];
         return satAtt.includes(s.id)?'出':'－';
       }
-      if(s.id==='encho')return (md.principal||{})[ds]?'●':'';
+      if(s.cls==='園長')return (md.principal||{})[ds]?'●':'';
       const abs=(md.absences||{})[ds]?.[s.id];
       if(abs)return abs==='rest'?'休み':abs==='nenkyuu'?'年休':'出張';
       const asgn=(md.assignments||{})[ds]||{};
