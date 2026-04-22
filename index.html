@@ -493,9 +493,14 @@ function activeStaff(){return appData.staff.filter(s=>!s.maternity);}
 function clsName(cls){return appData.classNames[cls]||cls;}
 function getMD(y,m){
   const k=`${y}-${String(m+1).padStart(2,'0')}`;
-  if(!appData.months[k])appData.months[k]={assignments:{},absences:{},saturdayAttendance:{},dayMemos:{},dayFlags:{},holidays:[],principal:{}};
+  if(!appData.months[k])appData.months[k]={};
   const md=appData.months[k];
+  if(!md.assignments)md.assignments={};
+  if(!md.absences)md.absences={};
+  if(!md.saturdayAttendance)md.saturdayAttendance={};
+  if(!md.dayMemos)md.dayMemos={};
   if(!md.dayFlags)md.dayFlags={};
+  if(!md.holidays)md.holidays=[];
   if(!md.principal)md.principal={};
   return md;
 }
