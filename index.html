@@ -255,6 +255,7 @@ thead .cc,thead .cn,thead .cd{z-index:26}
   font-size:13px;font-weight:900;cursor:pointer;transition:all .2s;font-family:inherit}
 .btn+.btn{margin-top:6px}
 .btn-blue{background:linear-gradient(135deg,#1565C0,#42A5F5);color:white;box-shadow:0 4px 14px rgba(33,150,243,.25)}
+.btn-blue:disabled{background:#B0BEC5;box-shadow:none;cursor:not-allowed;opacity:.6}
 .btn-gray{background:#F5F5F5;color:#78909C}
 .btn-danger{background:#FFEBEE;color:#C62828;border:2px solid #EF9A9A}
 
@@ -358,15 +359,17 @@ thead .cc,thead .cn,thead .cd{z-index:26}
     <div class="shbody">
       <div class="spgrid" id="spgrid"></div>
       <div class="strow">
-        <button class="stbtn" id="btn-ne" onclick="setCellStatus('noEarly')">🌅 早番×</button>
-        <button class="stbtn" id="btn-nl" onclick="setCellStatus('noLate')">🌙 遅番×</button>
+        <button class="stbtn" id="btn-ne" onclick="selectStatus('noEarly')">🌅 早番×</button>
+        <button class="stbtn" id="btn-nl" onclick="selectStatus('noLate')">🌙 遅番×</button>
       </div>
       <div class="strow">
-        <button class="stbtn" id="btn-rest" onclick="setCellStatus('rest')">😴 休み</button>
-        <button class="stbtn" id="btn-trip" onclick="setCellStatus('trip')">🚌 出張</button>
-        <button class="stbtn" id="btn-nen"  onclick="setCellStatus('nenkyuu')">📅 年休</button>
-        <button class="stbtn" onclick="setCellStatus('clear')">🗑️ クリア</button>
+        <button class="stbtn" id="btn-rest" onclick="selectStatus('rest')">😴 休み</button>
+        <button class="stbtn" id="btn-trip" onclick="selectStatus('trip')">🚌 出張</button>
+        <button class="stbtn" id="btn-nen"  onclick="selectStatus('nenkyuu')">📅 年休</button>
+        <button class="stbtn" id="btn-clr"  onclick="selectStatus('clear')">🗑️ クリア</button>
       </div>
+      <button class="btn btn-blue" id="cell-confirm-btn" onclick="confirmCell()" disabled>確定する</button>
+      <button class="btn btn-gray" onclick="closeOv('ov-cell')" style="margin-top:6px">キャンセル</button>
     </div>
   </div>
 </div>
@@ -458,6 +461,7 @@ const DEFAULT_STAFF = [
 let appData;
 let curY, curM;
 let editDate='', editSid='';
+let pendingShift=null, pendingStatus=null;
 let daySettingsDate='';
 let settingsTab=0;
 let matrixFY;
@@ -641,6 +645,9 @@ function openCell(ds,sid){
   const isPrincipalDay=(md.principal||{})[ds];
   const h3Block=s.cls==='副園長'&&isPrincipalDay;
 
+  pendingShift=curShift||null;
+  pendingStatus=abs||null;
+
   document.getElementById('cell-title').textContent=
     `${d.getMonth()+1}月${d.getDate()}日（${DOW_JP[dow]}） ${s.name}`;
   document.getElementById('cell-sub').textContent=
@@ -655,49 +662,74 @@ function openCell(ds,sid){
     const flagDis=(flags.noEarly&&EARLY.has(sh))||(flags.noLate&&LATE.has(sh));
     const dis=takenBySomeone||clsConf||flagDis||h3Block;
     const note=takenBySomeone?escH(getS(takenId)?.name||''):clsConf?'クラス重複':flagDis?'当日×':h3Block?'H3':'';
-    const sel=curShift===sh?' sel':'';
-    sg+=`<button class="spbtn${sel}${dis?' dis':''}" ${dis?'disabled':''} onclick="pickShift('${sh}')">
+    const sel=(pendingShift===sh)?' sel':'';
+    sg+=`<button class="spbtn${sel}${dis?' dis':''}" ${dis?'disabled':''} onclick="selectShift('${sh}')">
       <span class="sc ${SHIFT_BG[sh]}">${sh}</span>
       <span class="st">${SHIFT_TIME[sh]}</span>
       ${note?`<span class="sw">${note}</span>`:''}
     </button>`;
   });
   document.getElementById('spgrid').innerHTML=sg;
-  document.getElementById('btn-ne').className='stbtn'+(abs==='noEarly'?' sne':'');
-  document.getElementById('btn-nl').className='stbtn'+(abs==='noLate'?' snl':'');
-  document.getElementById('btn-rest').className='stbtn'+(abs==='rest'?' sr':'');
-  document.getElementById('btn-trip').className='stbtn'+(abs==='trip'?' st2':'');
-  document.getElementById('btn-nen').className='stbtn'+(abs==='nenkyuu'?' sn':'');
+  updateCellPending();
   document.getElementById('ov-cell').classList.add('open');
 }
 
-function pickShift(sh){
-  const md=getMD(curY,curM);
-  if(!md.assignments[editDate])md.assignments[editDate]={};
-  Object.keys(md.assignments[editDate]).forEach(k=>{
-    if(md.assignments[editDate][k]===editSid)delete md.assignments[editDate][k];
-  });
-  md.assignments[editDate][sh]=editSid;
-  if(md.absences[editDate])delete md.absences[editDate][editSid];
-  saveData();closeOv('ov-cell');renderTable();
+function selectShift(sh){
+  pendingShift=(pendingShift===sh)?null:sh;
+  pendingStatus=null;
+  updateCellPending();
 }
 
-function setCellStatus(status){
-  const md=getMD(curY,curM);
+function selectStatus(status){
   if(status==='clear'){
+    pendingShift=null;pendingStatus='clear';
+  }else{
+    pendingStatus=(pendingStatus===status)?null:status;
+    pendingShift=null;
+  }
+  updateCellPending();
+}
+
+function updateCellPending(){
+  document.querySelectorAll('#spgrid .spbtn').forEach((btn,i)=>{
+    if(!btn.disabled)btn.classList.toggle('sel',SHIFTS[i]===pendingShift);
+  });
+  document.getElementById('btn-ne').className='stbtn'+(pendingStatus==='noEarly'?' sne':'');
+  document.getElementById('btn-nl').className='stbtn'+(pendingStatus==='noLate'?' snl':'');
+  document.getElementById('btn-rest').className='stbtn'+(pendingStatus==='rest'?' sr':'');
+  document.getElementById('btn-trip').className='stbtn'+(pendingStatus==='trip'?' st2':'');
+  document.getElementById('btn-nen').className='stbtn'+(pendingStatus==='nenkyuu'?' sn':'');
+  document.getElementById('btn-clr').className='stbtn'+(pendingStatus==='clear'?' sr':'');
+  const cb=document.getElementById('cell-confirm-btn');
+  const L={rest:'休み',trip:'出張',nenkyuu:'年休',noEarly:'早番×',noLate:'遅番×',clear:'クリア'};
+  if(pendingShift){cb.textContent=`✅ ${pendingShift} で確定`;cb.disabled=false;}
+  else if(pendingStatus){cb.textContent=`✅ ${L[pendingStatus]} で確定`;cb.disabled=false;}
+  else{cb.textContent='確定する';cb.disabled=true;}
+}
+
+function confirmCell(){
+  const md=getMD(curY,curM);
+  if(pendingShift){
+    if(!md.assignments[editDate])md.assignments[editDate]={};
+    Object.keys(md.assignments[editDate]).forEach(k=>{
+      if(md.assignments[editDate][k]===editSid)delete md.assignments[editDate][k];
+    });
+    md.assignments[editDate][pendingShift]=editSid;
+    if(md.absences[editDate])delete md.absences[editDate][editSid];
+  }else if(pendingStatus&&pendingStatus!=='clear'){
+    if(!md.absences[editDate])md.absences[editDate]={};
+    md.absences[editDate][editSid]=pendingStatus;
+    if(md.assignments[editDate])
+      Object.keys(md.assignments[editDate]).forEach(k=>{
+        if(md.assignments[editDate][k]===editSid)delete md.assignments[editDate][k];
+      });
+  }else if(pendingStatus==='clear'){
     if(md.absences[editDate])delete md.absences[editDate][editSid];
     if(md.assignments[editDate])
       Object.keys(md.assignments[editDate]).forEach(k=>{
         if(md.assignments[editDate][k]===editSid)delete md.assignments[editDate][k];
       });
-  }else{
-    if(!md.absences[editDate])md.absences[editDate]={};
-    md.absences[editDate][editSid]=status;
-    if(md.assignments[editDate])
-      Object.keys(md.assignments[editDate]).forEach(k=>{
-        if(md.assignments[editDate][k]===editSid)delete md.assignments[editDate][k];
-      });
-  }
+  }else return;
   saveData();closeOv('ov-cell');renderTable();
 }
 
