@@ -255,7 +255,7 @@ thead .cc,thead .cn,thead .cd{z-index:26}
   font-size:13px;font-weight:900;cursor:pointer;transition:all .2s;font-family:inherit}
 .btn+.btn{margin-top:6px}
 .btn-blue{background:linear-gradient(135deg,#1565C0,#42A5F5);color:white;box-shadow:0 4px 14px rgba(33,150,243,.25)}
-.btn-blue:disabled{background:#B0BEC5;box-shadow:none;cursor:not-allowed;opacity:.6}
+.btn-blue.btn-inactive{background:#B0BEC5;box-shadow:none;cursor:default;opacity:.65;pointer-events:none}
 .btn-gray{background:#F5F5F5;color:#78909C}
 .btn-danger{background:#FFEBEE;color:#C62828;border:2px solid #EF9A9A}
 
@@ -368,7 +368,7 @@ thead .cc,thead .cn,thead .cd{z-index:26}
         <button class="stbtn" id="btn-nen"  onclick="selectStatus('nenkyuu')">📅 年休</button>
         <button class="stbtn" id="btn-clr"  onclick="selectStatus('clear')">🗑️ クリア</button>
       </div>
-      <button class="btn btn-blue" id="cell-confirm-btn" onclick="confirmCell()" disabled>確定する</button>
+      <button class="btn btn-blue btn-inactive" id="cell-confirm-btn" onclick="confirmCell()">確定する</button>
       <button class="btn btn-gray" onclick="closeOv('ov-cell')" style="margin-top:6px">キャンセル</button>
     </div>
   </div>
@@ -702,12 +702,13 @@ function updateCellPending(){
   document.getElementById('btn-clr').className='stbtn'+(pendingStatus==='clear'?' sr':'');
   const cb=document.getElementById('cell-confirm-btn');
   const L={rest:'休み',trip:'出張',nenkyuu:'年休',noEarly:'早番×',noLate:'遅番×',clear:'クリア'};
-  if(pendingShift){cb.textContent=`✅ ${pendingShift} で確定`;cb.disabled=false;}
-  else if(pendingStatus){cb.textContent=`✅ ${L[pendingStatus]} で確定`;cb.disabled=false;}
-  else{cb.textContent='確定する';cb.disabled=true;}
+  if(pendingShift){cb.textContent=`✅ ${pendingShift} で確定`;cb.classList.remove('btn-inactive');}
+  else if(pendingStatus){cb.textContent=`✅ ${L[pendingStatus]} で確定`;cb.classList.remove('btn-inactive');}
+  else{cb.textContent='確定する';cb.classList.add('btn-inactive');}
 }
 
 function confirmCell(){
+  if(!pendingShift&&!pendingStatus)return;
   const md=getMD(curY,curM);
   if(pendingShift){
     if(!md.assignments[editDate])md.assignments[editDate]={};
