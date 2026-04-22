@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>当番割り当てアプリ</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -254,6 +256,14 @@ thead .cc,thead .cn,thead .cd{z-index:26}
 .btn-gray{background:#F5F5F5;color:#78909C}
 .btn-danger{background:#FFEBEE;color:#C62828;border:2px solid #EF9A9A}
 
+/* SYNC DOT */
+.sync-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:5px;vertical-align:middle;transition:background .3s}
+.sync-dot.ok{background:#4CAF50}
+.sync-dot.connecting{background:#FFC107;animation:pulse .8s infinite}
+.sync-dot.error{background:#F44336}
+.sync-dot.none{background:rgba(255,255,255,.35)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
 /* TOAST */
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);
   background:#323232;color:white;border-radius:10px;padding:9px 18px;
@@ -267,7 +277,7 @@ thead .cc,thead .cn,thead .cd{z-index:26}
 
 <div class="hdr">
   <div class="hdr-top">
-    <div class="hdr-title">📋 当番割り当て</div>
+    <div class="hdr-title">📋 当番割り当て<span class="sync-dot none" id="sync-dot"></span></div>
     <div class="hdr-btns">
       <button class="hbtn hbtn-auto" onclick="autoAssign()">🪄 作成</button>
       <button class="hbtn hbtn-csv"  onclick="exportCSV()">📥 CSV</button>
@@ -372,6 +382,7 @@ thead .cc,thead .cn,thead .cd{z-index:26}
         <button class="stab active" id="stab0" onclick="switchSettingsTab(0)">クラス</button>
         <button class="stab"        id="stab1" onclick="switchSettingsTab(1)">職員</button>
         <button class="stab"        id="stab2" onclick="switchSettingsTab(2)">祝日</button>
+        <button class="stab"        id="stab3" onclick="switchSettingsTab(3)">同期</button>
       </div>
       <div id="stab-content"></div>
       <button class="btn btn-blue" id="cfg-save-btn" onclick="saveSettings()">保存する</button>
@@ -386,6 +397,20 @@ thead .cc,thead .cn,thead .cd{z-index:26}
 <div class="toast" id="toast"></div>
 
 <script>
+/* ══════════════════════════════════════
+   FIREBASE CONFIG
+   ※ Firebase コンソールからコピーして設定してください
+══════════════════════════════════════ */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBTx3mWXpDRq17kzrjah7oy44mlnnI5Pkg",
+  authDomain: "hoikuen-taban-app.firebaseapp.com",
+  databaseURL: "https://hoikuen-taban-app-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "hoikuen-taban-app",
+  storageBucket: "hoikuen-taban-app.firebasestorage.app",
+  messagingSenderId: "146154232110",
+  appId: "1:146154232110:web:b4ae34c7f48bac36d082bf"
+};
+
 /* ══════════════════════════════════════
    CONSTANTS
 ══════════════════════════════════════ */
@@ -434,6 +459,7 @@ let editDate='', editSid='';
 let daySettingsDate='';
 let settingsTab=0;
 let matrixFY;
+let db=null, syncCode=null, syncListener=null;
 
 /* ══════════════════════════════════════
    DATA
@@ -441,6 +467,7 @@ let matrixFY;
 function loadData(){
   try{ appData=JSON.parse(localStorage.getItem('tban2')||'null'); }catch(e){appData=null;}
   if(!appData) appData={staff:DEFAULT_STAFF.map(s=>({...s})),classNames:{},months:{}};
+  syncCode=localStorage.getItem('tban2_sync')||null;
   if(!appData.classNames) appData.classNames={};
   DEFAULT_STAFF.forEach(ds=>{if(!appData.staff.find(s=>s.id===ds.id))appData.staff.push({...ds});});
   // migrate: 管理 → 園長/副園長
@@ -449,7 +476,12 @@ function loadData(){
     if(s.id==='fukuen'&&s.cls==='管理'){s.cls='副園長';}
   });
 }
-function saveData(){localStorage.setItem('tban2',JSON.stringify(appData));}
+function saveData(){
+  localStorage.setItem('tban2',JSON.stringify(appData));
+  if(db&&syncCode){
+    db.ref('taban/'+syncCode).set(appData).catch(()=>setSyncStatus('error'));
+  }
+}
 function getS(id){return appData.staff.find(s=>s.id===id);}
 function activeStaff(){return appData.staff.filter(s=>!s.maternity);}
 function clsName(cls){return appData.classNames[cls]||cls;}
@@ -935,12 +967,13 @@ function openSettings(){
 
 function switchSettingsTab(n){
   settingsTab=n;
-  [0,1,2].forEach(i=>document.getElementById(`stab${i}`).classList.toggle('active',i===n));
+  [0,1,2,3].forEach(i=>{const b=document.getElementById(`stab${i}`);if(b)b.classList.toggle('active',i===n);});
   const saveBtn=document.getElementById('cfg-save-btn');
   const el=document.getElementById('stab-content');
   if(n===0){saveBtn.classList.remove('hidden');el.innerHTML=buildClsTab();}
   else if(n===1){saveBtn.classList.remove('hidden');el.innerHTML=buildStaffTab();}
-  else{saveBtn.classList.add('hidden');el.innerHTML=buildHolTab();}
+  else if(n===2){saveBtn.classList.add('hidden');el.innerHTML=buildHolTab();}
+  else{saveBtn.classList.add('hidden');el.innerHTML=buildSyncTab();}
 }
 
 function buildClsTab(){
@@ -1124,12 +1157,89 @@ function showToast(msg){
 }
 
 /* ══════════════════════════════════════
+   SYNC（Firebase）
+══════════════════════════════════════ */
+function setSyncStatus(s){
+  const dot=document.getElementById('sync-dot');
+  if(dot)dot.className='sync-dot '+s;
+}
+
+function subscribeSync(){
+  if(!db||!syncCode)return;
+  if(syncListener){syncListener();syncListener=null;}
+  setSyncStatus('connecting');
+  const ref=db.ref('taban/'+syncCode);
+  const handler=ref.on('value',snap=>{
+    const data=snap.val();
+    if(data){
+      appData=data;
+      if(!appData.classNames)appData.classNames={};
+      if(!appData.months)appData.months={};
+      if(!appData.staff)appData.staff=DEFAULT_STAFF.map(s=>({...s}));
+      localStorage.setItem('tban2',JSON.stringify(appData));
+      setSyncStatus('ok');
+      render();
+    }else{
+      db.ref('taban/'+syncCode).set(appData)
+        .then(()=>setSyncStatus('ok'))
+        .catch(()=>setSyncStatus('error'));
+    }
+  },()=>setSyncStatus('error'));
+  syncListener=()=>ref.off('value',handler);
+}
+
+function disconnectSync(){
+  if(syncListener){syncListener();syncListener=null;}
+  syncCode=null;
+  localStorage.removeItem('tban2_sync');
+  setSyncStatus('none');
+  showToast('同期を解除しました');
+}
+
+function applySyncCode(code){
+  if(!code||code.length<4){alert('同期コードは4文字以上で入力してください');return;}
+  if(!db){alert('Firebase が初期化されていません。\nFIREBASE_CONFIG の設定を確認してください。');return;}
+  syncCode=code;
+  localStorage.setItem('tban2_sync',code);
+  subscribeSync();
+  closeOv('ov-cfg');
+  showToast('同期コードを設定しました');
+}
+
+function buildSyncTab(){
+  const cur=syncCode||'';
+  return `<div style="margin-bottom:12px">
+    <div style="font-size:12px;color:#546E7A;margin-bottom:12px;line-height:1.7">
+      同じ同期コードを複数の端末で入力すると、データをリアルタイムで共有できます。
+    </div>
+    <div style="margin-bottom:6px;font-size:12px;font-weight:700;color:var(--text)">同期コード（4文字以上）</div>
+    <input id="sync-code-input" style="width:100%;border:1.5px solid #DDEEFF;border-radius:10px;padding:8px 10px;font-size:14px;font-family:inherit;outline:none;margin-bottom:10px;letter-spacing:2px" placeholder="例: hoikuen2025" value="${escH(cur)}">
+    <button class="btn btn-blue" onclick="applySyncCode(document.getElementById('sync-code-input').value.trim())" style="margin-bottom:6px">🔗 この同期コードで接続</button>
+    ${cur?`<button class="btn btn-danger" onclick="if(confirm('同期を解除してローカルのみに戻しますか？'))disconnectSync()">🔌 同期を解除</button>`:''}
+    <div style="margin-top:12px;padding:8px 10px;background:#F5F5F5;border-radius:8px;font-size:11px;color:#78909C;line-height:1.6">
+      現在: ${cur?`<strong style="color:#1565C0">${escH(cur)}</strong> で同期中`:'同期なし（ローカル保存のみ）'}
+    </div>
+  </div>`;
+}
+
+/* ══════════════════════════════════════
    INIT
 ══════════════════════════════════════ */
 loadData();
 const now=new Date();
 curY=now.getFullYear();curM=now.getMonth();
 render();
+
+try{
+  if(FIREBASE_CONFIG.apiKey&&FIREBASE_CONFIG.apiKey!=='YOUR_API_KEY'){
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db=firebase.database();
+    if(syncCode)subscribeSync();
+    else setSyncStatus('none');
+  }
+}catch(e){
+  console.warn('Firebase init failed:',e);
+}
 </script>
 </body>
 </html>
