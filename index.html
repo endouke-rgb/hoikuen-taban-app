@@ -348,6 +348,26 @@ thead .cc,thead .cn,thead .cd{z-index:26}
   </div>
 </div>
 
+<!-- PRINCIPAL CELL MODAL -->
+<div class="ov" id="ov-principal" onclick="ovBg(event,'ov-principal')">
+  <div class="sheet">
+    <div class="shdl"></div>
+    <div class="shhd">
+      <div><div class="shtitle" id="principal-title">園長</div></div>
+      <button class="shclose" onclick="closeOv('ov-principal')">✕</button>
+    </div>
+    <div class="shbody">
+      <div class="strow" style="justify-content:center;gap:10px">
+        <button class="stbtn" id="btn-p-kyumu"  onclick="setPrincipal('kyumu')">😴 休務</button>
+        <button class="stbtn" id="btn-p-nenkyuu" onclick="setPrincipal('nenkyuu')">📅 年休</button>
+        <button class="stbtn" id="btn-p-trip"   onclick="setPrincipal('trip')">🚌 出張</button>
+        <button class="stbtn" id="btn-p-clr"    onclick="setPrincipal('clear')">🗑️ クリア</button>
+      </div>
+      <button class="btn btn-gray" onclick="closeOv('ov-principal')" style="margin-top:10px">キャンセル</button>
+    </div>
+  </div>
+</div>
+
 <!-- CELL EDIT MODAL -->
 <div class="ov" id="ov-cell" onclick="ovBg(event,'ov-cell')">
   <div class="sheet">
@@ -601,10 +621,16 @@ function renderTable(){
           return;
         }
         if(s.cls==='園長'){
-          const isPrincipal=(md.principal||{})[ds];
-          h+=isPrincipal
-            ?`<td class="c-principal c-edit" onclick="togglePrincipal('${ds}')">欠</td>`
-            :`<td class="c-empty c-edit" onclick="togglePrincipal('${ds}')"></td>`;
+          const pv=(md.principal||{})[ds];
+          if(pv==='kyumu'||pv===true){
+            h+=`<td class="c-rest c-edit" onclick="openPrincipalCell('${ds}')">休</td>`;
+          }else if(pv==='nenkyuu'){
+            h+=`<td class="c-nen c-edit" onclick="openPrincipalCell('${ds}')">年</td>`;
+          }else if(pv==='trip'){
+            h+=`<td class="c-trip c-edit" onclick="openPrincipalCell('${ds}')">出</td>`;
+          }else{
+            h+=`<td class="c-empty c-edit" onclick="openPrincipalCell('${ds}')"></td>`;
+          }
           return;
         }
         const abs=(md.absences||{})[ds]?.[s.id];
@@ -765,11 +791,26 @@ function saveDaySettings(){
   saveData();closeOv('ov-day');renderTable();
 }
 
-function togglePrincipal(ds){
+let principalEditDate=null;
+function openPrincipalCell(ds){
+  principalEditDate=ds;
   const md=getMD(curY,curM);
-  if(md.principal[ds]) delete md.principal[ds];
-  else md.principal[ds]=true;
+  const pv=(md.principal||{})[ds];
+  document.getElementById('btn-p-kyumu').className='stbtn'+(pv==='kyumu'||pv===true?' st2':'');
+  document.getElementById('btn-p-nenkyuu').className='stbtn'+(pv==='nenkyuu'?' st2':'');
+  document.getElementById('btn-p-trip').className='stbtn'+(pv==='trip'?' st2':'');
+  document.getElementById('btn-p-clr').className='stbtn';
+  const d=fromDate(ds);
+  document.getElementById('principal-title').textContent=`園長 ${d.getMonth()+1}/${d.getDate()}`;
+  document.getElementById('ov-principal').classList.add('open');
+}
+function setPrincipal(val){
+  if(!principalEditDate)return;
+  const md=getMD(curY,curM);
+  if(val==='clear') delete md.principal[principalEditDate];
+  else md.principal[principalEditDate]=val;
   saveData();renderTable();
+  closeOv('ov-principal');
 }
 
 /* ══════════════════════════════════════
@@ -1161,7 +1202,7 @@ function exportCSV(){
         const satAtt=(md.saturdayAttendance||{})[ds]||[];
         return satAtt.includes(s.id)?'出':'－';
       }
-      if(s.cls==='園長')return (md.principal||{})[ds]?'欠席':'';
+      if(s.cls==='園長'){const pv=(md.principal||{})[ds];if(!pv)return'';if(pv==='nenkyuu')return'年休';if(pv==='trip')return'出張';return'休務';}
       const abs=(md.absences||{})[ds]?.[s.id];
       if(abs)return abs==='rest'?'休み':abs==='nenkyuu'?'年休':'出張';
       const asgn=(md.assignments||{})[ds]||{};
