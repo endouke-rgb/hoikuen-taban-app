@@ -120,7 +120,7 @@ thead .cc,thead .cn,thead .cd{z-index:26}
 .c-nen {background:#F3E5F5;color:#6A1B9A;font-size:10px;font-weight:900;cursor:pointer}
 .c-ne  {background:#FFF3F3;color:#C62828;font-size:10px;font-weight:900;cursor:pointer}
 .c-nl  {background:#EEF4FF;color:#1565C0;font-size:10px;font-weight:900;cursor:pointer}
-.c-principal{background:#FFF3E0;color:#E65100;font-size:13px;font-weight:900;cursor:pointer}
+.c-principal{background:#FFEBEE;color:#C62828;font-size:10px;font-weight:900;cursor:pointer}
 
 /* LEGEND CARD */
 .leg-card{background:white;border-radius:16px;padding:16px 20px;min-width:200px;
@@ -560,7 +560,7 @@ function renderTable(){
         if(s.cls==='園長'){
           const isPrincipal=(md.principal||{})[ds];
           h+=isPrincipal
-            ?`<td class="c-principal c-edit" onclick="togglePrincipal('${ds}')">●</td>`
+            ?`<td class="c-principal c-edit" onclick="togglePrincipal('${ds}')">欠</td>`
             :`<td class="c-empty c-edit" onclick="togglePrincipal('${ds}')"></td>`;
           return;
         }
@@ -1085,7 +1085,7 @@ function exportCSV(){
         const satAtt=(md.saturdayAttendance||{})[ds]||[];
         return satAtt.includes(s.id)?'出':'－';
       }
-      if(s.cls==='園長')return (md.principal||{})[ds]?'●':'';
+      if(s.cls==='園長')return (md.principal||{})[ds]?'欠席':'';
       const abs=(md.absences||{})[ds]?.[s.id];
       if(abs)return abs==='rest'?'休み':abs==='nenkyuu'?'年休':'出張';
       const asgn=(md.assignments||{})[ds]||{};
