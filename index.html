@@ -16,6 +16,8 @@
 }
 body{font-family:'Hiragino Maru Gothic ProN','Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;
   background:#EEF4FF;min-height:100vh;color:var(--text);-webkit-tap-highlight-color:transparent}
+button{touch-action:manipulation}
+td[onclick]{touch-action:manipulation}
 
 /* HEADER */
 .hdr{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,#1565C0,#42A5F5);
@@ -157,13 +159,13 @@ thead .cc,thead .cn,thead .cd{z-index:26}
 
 /* OVERLAY / SHEET */
 .ov{display:none;position:fixed;inset:0;background:rgba(0,0,40,.42);z-index:200;
-  align-items:flex-end;justify-content:center;backdrop-filter:blur(3px)}
+  align-items:flex-end;justify-content:center;backdrop-filter:blur(3px);cursor:pointer}
 .ov.open{display:flex;animation:bgIn .2s}
 .ov-center{align-items:center}
 @keyframes bgIn{from{opacity:0}to{opacity:1}}
 .sheet{background:white;border-radius:24px 24px 0 0;width:100%;max-width:480px;
   max-height:90vh;overflow-y:auto;padding-bottom:24px;
-  animation:shUp .3s cubic-bezier(.22,1,.36,1)}
+  animation:shUp .3s cubic-bezier(.22,1,.36,1);cursor:default;touch-action:pan-y}
 @keyframes shUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .shdl{width:36px;height:5px;background:#E0E0E0;border-radius:100px;margin:10px auto}
 .shhd{padding:4px 16px 11px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #F0F0F0}
