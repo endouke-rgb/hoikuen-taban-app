@@ -1000,7 +1000,10 @@ function removeStaff(cls){
 
 function buildStaffTab(){
   let h='<div style="margin-bottom:12px">';
-  appData.staff.forEach(s=>{
+  const ordered=[...appData.staff]
+    .filter(s=>CLASS_ORDER.includes(s.cls))
+    .sort((a,b)=>CLASS_ORDER.indexOf(a.cls)-CLASS_ORDER.indexOf(b.cls));
+  ordered.forEach(s=>{
     const mat=!!s.maternity;
     h+=`<div class="sr-row">
       <span class="sr-cls">${escH(clsName(s.cls))}</span>
